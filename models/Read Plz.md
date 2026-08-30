@@ -1,0 +1,3 @@
+- go to [this page](Hugging_Face.md)
+- download `.pt` file in the `models` folder
+- only then use detection scripts.
