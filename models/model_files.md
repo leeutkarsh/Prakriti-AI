@@ -3,3 +3,7 @@
 [rice disease model](https://www.dropbox.com/scl/fi/31vxk575ith8m2syon0l4/best.pt?rlkey=dkko1xuzyyat0tt1pn4zuxvdt&st=nsew2fn7&dl=0)
 
 [wheat disease model](https://www.dropbox.com/scl/fi/d05re90zbsz88uu9p3qep/best0.pt?rlkey=uzr64lvcgjicmvjotgq8y8i2p&st=oq4qj0vh&dl=0)
+
+[soil prediction model](https://www.dropbox.com/scl/fi/v54zu8ri34s1ltq3alsn5/soil_prediction_models.pkl?rlkey=wd8yt6rt6e771gpswt3eq8fxb&st=ozya4prl&dl=0)
+- [soil feature scaler](https://www.dropbox.com/scl/fi/q5bsqkpfi2qpg6t2b3ig7/soil_feature_scaler.pkl?rlkey=h986917ujfasdhjxfzq4ldep1&st=sg439mdc&dl=0)
+- [soil level encoders](https://www.dropbox.com/scl/fi/b97zscvy3crs8z5t2tcjx/soil_level_encoders.pkl?rlkey=n41j8badq51qrzn5el1yuxp0u&st=6yc9lclm&dl=0)
