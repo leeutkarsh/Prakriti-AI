@@ -1,5 +1,6 @@
 import joblib
 import pandas as pd
+import requests
 
 MODEL_PATH = "soil_prediction_models.pkl"
 SCALER_PATH = "soil_feature_scaler.pkl"
@@ -11,26 +12,46 @@ soil_encoders = joblib.load(LEVEL_PATH)
 
 soil_levels = list(soil_models.keys())
 
-city_data = pd.read_csv("lat_lon_city.csv")
+def get_coordinates(location):
+    url = "https://nominatim.openstreetmap.org/search"
+
+    params = {
+        "q": location,
+        "format": "jsonv2",
+        "limit": 1,
+        "countrycodes": "in"
+    }
+
+    headers = {
+        "User-Agent": "SIH-Agriculture"
+    }
+
+    response = requests.get(url, params=params, headers=headers)
+    response.raise_for_status()
+
+    data = response.json()
+
+    if not data:
+        return None
+
+    return {
+        "latitude": float(data[0]["lat"]),
+        "longitude": float(data[0]["lon"]),
+        "display_name": data[0]["display_name"]
+    }
 
 
-def city_to_lat_long(city):
-    lat_lon = city_data.loc[
-        city_data["City"].str.lower() == city.strip().lower(),
-        ["Latitude", "Longitude"]
-    ]
+def address_to_lat_long(address):
+    location = get_coordinates(address)
 
-    if lat_lon.empty:
-        raise ValueError(f"City '{city}' not found")
+    if location is None:
+        raise ValueError(f"Location not found: {address}")
 
-    latitude = float(lat_lon.iloc[0]["Latitude"])
-    longitude = float(lat_lon.iloc[0]["Longitude"])
-
-    return latitude, longitude
+    return location["latitude"], location["longitude"]
 
 
-def predict_soil_characteristics(city):
-    latitude, longitude = city_to_lat_long(city)
+def predict_soil_characteristics(address):
+    latitude, longitude = address_to_lat_long(address)
 
     if not -90 <= latitude <= 90:
         raise ValueError("Latitude must be between -90 and 90")
@@ -59,6 +80,3 @@ def predict_soil_characteristics(city):
         predictions[level] = predicted_level
 
     return predictions
-
-def get_city_names():
-    return city_data['City'].tolist()
