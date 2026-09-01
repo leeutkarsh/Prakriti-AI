@@ -59,3 +59,6 @@ def predict_soil_characteristics(city):
         predictions[level] = predicted_level
 
     return predictions
+
+def get_city_names():
+    return city_data['City'].tolist()
