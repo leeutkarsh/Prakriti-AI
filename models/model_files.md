@@ -10,3 +10,4 @@
 - [lat_long_file](https://www.dropbox.com/scl/fi/rmdvhm7f3vire1ojpwu14/lat_lon_city.csv?rlkey=b6hyblbuaq5wb8asi7gv9rja9&st=x1qtjx4p&dl=0)
 
 [pest detection model](https://www.dropbox.com/scl/fi/51kya4rcb31bxy3ulph32/best1.pt?rlkey=6mfetnh2zquacmgygroqoxyax&st=tovlr53t&dl=0)
+- [pesticide csv file](https://www.dropbox.com/scl/fi/e3goendi9ju9qlwu1cwvs/Pesticides.csv?rlkey=cj8sc89enzzcmazpg34nngmni&st=b1notqdz&dl=0)
