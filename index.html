@@ -1,0 +1,3660 @@
+ ```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>AgriSense AI | Multilingual Crop Disease Diagnosis</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Google Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['DM Sans', 'sans-serif'],
+                        display: ['Plus Jakarta Sans', 'sans-serif']
+                    },
+                    colors: {
+                        forest: '#14532d',
+                        leaf: '#16a34a',
+                        mint: '#dcfce7',
+                        soil: '#92400e'
+                    },
+                    boxShadow: {
+                        soft: '0 15px 45px rgba(20, 83, 45, 0.08)',
+                        card: '0 8px 30px rgba(15, 23, 42, 0.06)'
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+
+        * {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            background: #f7f9f6;
+        }
+
+        .font-display {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        .hero-gradient {
+            background:
+                radial-gradient(circle at 80% 20%,
+                rgba(34,197,94,.10),
+                transparent 30%),
+                radial-gradient(circle at 10% 80%,
+                rgba(251,191,36,.08),
+                transparent 30%);
+        }
+
+        .upload-zone {
+            transition: all .3s ease;
+        }
+
+        .upload-zone:hover {
+            transform: translateY(-2px);
+            border-color: #16a34a;
+            box-shadow: 0 15px 35px rgba(22,163,74,.10);
+        }
+
+        .upload-zone.dragover {
+            transform: scale(1.01);
+            border-color: #16a34a;
+            background: #ecfdf5;
+            box-shadow: 0 0 0 5px rgba(22,163,74,.08);
+        }
+
+        .floating {
+            animation: floating 3s ease-in-out infinite;
+        }
+
+        @keyframes floating {
+            0%,100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-6px);
+            }
+        }
+
+        .spinner {
+            width: 42px;
+            height: 42px;
+            border: 4px solid #dcfce7;
+            border-top-color: #16a34a;
+            border-radius: 50%;
+            animation: spin .8s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .timeline-line {
+            position: absolute;
+            left: 20px;
+            top: 40px;
+            bottom: 0;
+            width: 2px;
+            background: #d1fae5;
+        }
+
+        .timeline-item:last-child .timeline-line {
+            display: none;
+        }
+
+        .confidence-bar {
+            transition: width 1.2s ease;
+        }
+
+        .example-img {
+            transition: all .25s ease;
+            cursor: pointer;
+        }
+
+        .example-img:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 25px rgba(0,0,0,.12);
+        }
+
+        .result-appear {
+            animation: resultAppear .5s ease forwards;
+        }
+
+        @keyframes resultAppear {
+
+            from {
+                opacity: 0;
+                transform: translateY(15px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+
+        }
+
+        /* Language dropdown */
+
+        .language-select {
+            appearance: none;
+            background-image:
+                linear-gradient(45deg, transparent 50%, #64748b 50%),
+                linear-gradient(135deg, #64748b 50%, transparent 50%);
+            background-position:
+                calc(100% - 14px) 50%,
+                calc(100% - 9px) 50%;
+            background-size: 5px 5px;
+            background-repeat: no-repeat;
+        }
+
+    </style>
+</head>
+
+
+<body class="text-slate-800 font-sans">
+
+
+<!-- =========================================================
+     HEADER
+========================================================= -->
+
+<header class="sticky top-0 z-50 bg-white/90 backdrop-blur-xl border-b border-slate-200">
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
+        <div class="h-20 flex items-center justify-between gap-4">
+
+
+            <!-- LOGO -->
+
+            <div class="flex items-center gap-3">
+
+                <div class="w-11 h-11 rounded-2xl bg-emerald-100
+                            flex items-center justify-center text-2xl">
+                    🌱
+                </div>
+
+                <div>
+
+                    <h1 class="font-display font-extrabold text-lg text-forest">
+                        AgriSense <span class="text-leaf">AI</span>
+                    </h1>
+
+                    <p class="text-[10px] uppercase tracking-widest text-slate-400 font-bold">
+                        Smart Crop Health
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <!-- NAVIGATION -->
+
+            <nav class="hidden lg:flex items-center gap-7 text-sm font-medium">
+
+                <a href="#dashboard"
+                   data-i18n="navDashboard"
+                   class="text-emerald-700 font-semibold">
+                    Dashboard
+                </a>
+
+                <a href="#diagnosis"
+                   data-i18n="navDiagnosis"
+                   class="text-slate-500 hover:text-emerald-700">
+                    Diagnosis
+                </a>
+
+                <a href="#prevention"
+                   data-i18n="navPrevention"
+                   class="text-slate-500 hover:text-emerald-700">
+                    Prevention
+                </a>
+
+                <a href="#about"
+                   data-i18n="navAbout"
+                   class="text-slate-500 hover:text-emerald-700">
+                    About
+                </a>
+
+            </nav>
+
+
+            <!-- LANGUAGE + USER -->
+
+            <div class="flex items-center gap-3">
+
+                <!-- LANGUAGE -->
+
+                <div class="relative">
+
+                    <span class="absolute left-3 top-1/2
+                                 -translate-y-1/2 text-sm pointer-events-none">
+                        🌐
+                    </span>
+
+                    <select id="languageSelector"
+                            class="language-select pl-9 pr-8 py-2.5
+                                   rounded-xl border border-slate-200
+                                   bg-white text-sm font-semibold
+                                   outline-none focus:ring-2
+                                   focus:ring-emerald-200
+                                   cursor-pointer">
+
+                        <option value="en">English</option>
+                        <option value="hi">हिन्दी</option>
+                        <option value="mr">मराठी</option>
+                        <option value="cg">छत्तीसगढ़ी</option>
+
+                    </select>
+
+                </div>
+
+
+                <!-- USER -->
+
+                <div class="hidden sm:block text-right">
+
+                    <p class="text-xs text-slate-400"
+                       data-i18n="farmerDashboard">
+                        Farmer Dashboard
+                    </p>
+
+                    <p class="text-sm font-bold">
+                        Crop Guardian
+                    </p>
+
+                </div>
+
+                <div class="w-10 h-10 rounded-full bg-emerald-700
+                            text-white flex items-center justify-center
+                            font-bold">
+                    CG
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</header>
+
+
+<!-- =========================================================
+     MAIN
+========================================================= -->
+
+<main id="dashboard" class="hero-gradient">
+
+
+<!-- =========================================================
+     HERO + STATS
+========================================================= -->
+
+<section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-10 pb-8">
+
+
+    <div class="flex flex-col lg:flex-row
+                lg:items-end justify-between gap-6">
+
+
+        <div>
+
+            <div class="inline-flex items-center gap-2 px-3 py-1.5
+                        rounded-full bg-emerald-50 border border-emerald-100
+                        text-emerald-700 text-xs font-bold mb-4">
+
+                <span class="w-2 h-2 rounded-full
+                             bg-emerald-500 animate-pulse"></span>
+
+                <span data-i18n="systemOnline">
+                    AI DIAGNOSTIC SYSTEM ONLINE
+                </span>
+
+            </div>
+
+
+            <h2 class="font-display text-3xl sm:text-4xl lg:text-5xl
+                       font-extrabold tracking-tight text-slate-900">
+
+                <span data-i18n="heroTitle">
+                    Protect your crops.
+                </span>
+
+                <span class="text-emerald-600"
+                      data-i18n="heroTitleGreen">
+                    Predict diseases early.
+                </span>
+
+            </h2>
+
+
+            <p class="mt-4 text-slate-500 max-w-2xl leading-7"
+               data-i18n="heroDescription">
+
+                Upload a photo of a crop leaf and our intelligent
+                diagnostic engine will analyze visible symptoms,
+                estimate disease severity and recommend next steps.
+
+            </p>
+
+        </div>
+
+
+        <!-- DATE -->
+
+        <div class="bg-white border border-slate-200
+                    rounded-2xl px-5 py-4 shadow-sm">
+
+            <p class="text-xs text-slate-400 font-semibold uppercase">
+                <span data-i18n="today">Today</span>
+            </p>
+
+            <p id="currentDate"
+               class="font-bold text-slate-800 mt-1">
+                Loading...
+            </p>
+
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         QUICK STATS
+    ====================================================== -->
+
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mt-8">
+
+
+        <!-- TOTAL SCANS -->
+
+        <div class="bg-white rounded-2xl border border-slate-200
+                    p-5 shadow-card">
+
+            <div class="flex justify-between items-start">
+
+                <div>
+
+                    <p class="text-xs text-slate-400 font-semibold">
+                        <span data-i18n="totalScans">
+                            TOTAL SCANS
+                        </span>
+                    </p>
+
+                    <p id="totalScans"
+                       class="font-display text-3xl font-extrabold mt-2">
+                        128
+                    </p>
+
+                </div>
+
+                <div class="w-10 h-10 rounded-xl bg-blue-50
+                            flex items-center justify-center">
+                    🔬
+                </div>
+
+            </div>
+
+            <p class="text-xs text-emerald-600 mt-3 font-semibold"
+               data-i18n="monthIncrease">
+                ↑ 12% this month
+            </p>
+
+        </div>
+
+
+        <!-- HEALTHY -->
+
+        <div class="bg-white rounded-2xl border border-slate-200
+                    p-5 shadow-card">
+
+            <div class="flex justify-between items-start">
+
+                <div>
+
+                    <p class="text-xs text-slate-400 font-semibold"
+                       data-i18n="healthyCrops">
+                        HEALTHY CROPS
+                    </p>
+
+                    <p id="healthyScans"
+                       class="font-display text-3xl font-extrabold mt-2">
+                        91
+                    </p>
+
+                </div>
+
+                <div class="w-10 h-10 rounded-xl bg-emerald-50
+                            flex items-center justify-center">
+                    🌿
+                </div>
+
+            </div>
+
+            <p class="text-xs text-emerald-600 mt-3 font-semibold"
+               data-i18n="healthyPercentage">
+                71% of total scans
+            </p>
+
+        </div>
+
+
+        <!-- ALERTS -->
+
+        <div class="bg-white rounded-2xl border border-slate-200
+                    p-5 shadow-card">
+
+            <div class="flex justify-between items-start">
+
+                <div>
+
+                    <p class="text-xs text-slate-400 font-semibold"
+                       data-i18n="activeAlerts">
+                        ACTIVE ALERTS
+                    </p>
+
+                    <p id="alertScans"
+                       class="font-display text-3xl font-extrabold mt-2">
+                        07
+                    </p>
+
+                </div>
+
+                <div class="w-10 h-10 rounded-xl bg-red-50
+                            flex items-center justify-center">
+                    ⚠️
+                </div>
+
+            </div>
+
+            <p class="text-xs text-red-500 mt-3 font-semibold"
+               data-i18n="needsAttention">
+                Needs attention
+            </p>
+
+        </div>
+
+
+        <!-- ACCURACY -->
+
+        <div class="bg-emerald-900 rounded-2xl p-5
+                    shadow-card text-white">
+
+            <div class="flex justify-between items-start">
+
+                <div>
+
+                    <p class="text-xs text-emerald-200 font-semibold"
+                       data-i18n="aiAccuracy">
+                        AI ACCURACY
+                    </p>
+
+                    <p class="font-display text-3xl font-extrabold mt-2">
+                        94.6%
+                    </p>
+
+                </div>
+
+                <div class="w-10 h-10 rounded-xl bg-white/10
+                            flex items-center justify-center">
+                    ✨
+                </div>
+
+            </div>
+
+            <p class="text-xs text-emerald-200 mt-3"
+               data-i18n="modelPerformance">
+                Model performance
+            </p>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- =========================================================
+     DIAGNOSIS
+========================================================= -->
+
+<section id="diagnosis"
+         class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-12">
+
+
+    <div class="grid lg:grid-cols-3 gap-6">
+
+
+        <!-- =================================================
+             UPLOAD CARD
+        ================================================== -->
+
+        <div class="lg:col-span-2 bg-white rounded-3xl
+                    border border-slate-200 shadow-soft overflow-hidden">
+
+
+            <div class="p-6 sm:p-8">
+
+
+                <div class="flex items-center justify-between mb-6">
+
+                    <div>
+
+                        <h3 class="font-display text-xl font-bold"
+                            data-i18n="newDiagnosis">
+                            New Crop Diagnosis
+                        </h3>
+
+                        <p class="text-sm text-slate-400 mt-1"
+                           data-i18n="uploadInstruction">
+                            Upload a clear image of an affected leaf.
+                        </p>
+
+                    </div>
+
+                    <div class="hidden sm:flex items-center gap-2
+                                text-xs text-slate-400">
+
+                        <span class="w-2 h-2 bg-emerald-500 rounded-full"></span>
+                        JPG / PNG
+
+                    </div>
+
+                </div>
+
+
+                <!-- UPLOAD -->
+
+                <div id="uploadZone"
+                     class="upload-zone border-2 border-dashed
+                            border-slate-300 rounded-3xl p-8 sm:p-12
+                            text-center bg-slate-50/70 cursor-pointer">
+
+                    <input type="file"
+                           id="fileInput"
+                           accept="image/*"
+                           class="hidden">
+
+
+                    <div id="uploadContent">
+
+                        <div class="floating mx-auto w-20 h-20
+                                    rounded-3xl bg-emerald-100
+                                    flex items-center justify-center
+                                    text-4xl mb-5">
+                            📷
+                        </div>
+
+
+                        <h4 class="font-display font-bold text-xl"
+                            data-i18n="dropImage">
+                            Drop your crop image here
+                        </h4>
+
+
+                        <p class="text-sm text-slate-400 mt-2"
+                           data-i18n="orBrowse">
+                            or click to browse from your device
+                        </p>
+
+
+                        <button id="browseBtn"
+                                class="mt-6 px-6 py-3 rounded-xl
+                                       bg-emerald-700 hover:bg-emerald-800
+                                       text-white text-sm font-bold
+                                       transition"
+                                data-i18n="chooseImage">
+
+                            Choose Crop Image
+
+                        </button>
+
+
+                        <div class="flex flex-wrap justify-center
+                                    gap-3 mt-5 text-xs text-slate-400">
+
+                            <span data-i18n="clearImage">
+                                ✓ Clear leaf image
+                            </span>
+
+                            <span data-i18n="naturalLighting">
+                                ✓ Natural lighting
+                            </span>
+
+                            <span data-i18n="maxSize">
+                                ✓ Max 10 MB
+                            </span>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- PREVIEW -->
+
+                    <div id="previewContent"
+                         class="hidden">
+
+                        <img id="previewImage"
+                             class="mx-auto max-h-64 rounded-2xl
+                                    shadow-lg object-cover"
+                             alt="Selected crop">
+
+                        <p id="fileName"
+                           class="font-semibold mt-4 text-sm">
+                        </p>
+
+                        <button id="removeImage"
+                                class="mt-3 text-sm text-red-500
+                                       hover:text-red-700 font-semibold"
+                                data-i18n="removeImage">
+
+                            Remove image
+
+                        </button>
+
+                    </div>
+
+                </div>
+
+
+                <!-- DIAGNOSE -->
+
+                <button id="diagnoseBtn"
+                        disabled
+                        class="w-full mt-5 py-4 rounded-2xl
+                               bg-slate-200 text-slate-400
+                               font-bold cursor-not-allowed transition">
+
+                    🔍
+                    <span data-i18n="analyzeCrop">
+                        Analyze Crop Health
+                    </span>
+
+                </button>
+
+
+                <!-- PROCESSING -->
+
+                <div id="processing"
+                     class="hidden mt-6">
+
+                    <div class="bg-emerald-50 rounded-2xl p-6 text-center">
+
+                        <div class="spinner mx-auto"></div>
+
+                        <h4 class="font-bold mt-4"
+                            data-i18n="analyzing">
+                            AI is analyzing your crop...
+                        </h4>
+
+                        <p id="processingText"
+                           class="text-sm text-slate-500 mt-2">
+                            Examining leaf patterns...
+                        </p>
+
+
+                        <div class="w-full max-w-md mx-auto h-2
+                                    bg-emerald-100 rounded-full mt-5
+                                    overflow-hidden">
+
+                            <div id="processingBar"
+                                 class="h-full bg-emerald-600
+                                        rounded-full transition-all"
+                                 style="width:0%">
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- =================================================
+                 EXAMPLE IMAGES
+            ================================================== -->
+
+            <div class="border-t border-slate-100 p-6 sm:px-8
+                        bg-slate-50/50">
+
+
+                <div class="flex items-center justify-between mb-4">
+
+                    <div>
+
+                        <h4 class="font-bold text-sm"
+                            data-i18n="tryExample">
+                            Try an Example
+                        </h4>
+
+                        <p class="text-xs text-slate-400 mt-1"
+                           data-i18n="clickExample">
+                            Click an image to test the diagnosis engine.
+                        </p>
+
+                    </div>
+
+                    <span class="text-xs text-emerald-600 font-bold">
+                        4 samples
+                    </span>
+
+                </div>
+
+
+                <div class="grid grid-cols-4 gap-3">
+
+
+                    <div class="example-img rounded-xl overflow-hidden
+                                relative"
+                         data-disease="Tomato Late Blight">
+
+                        <img
+                            src="https://images.unsplash.com/photo-1592841200221-a6898f307baa?auto=format&fit=crop&w=400&q=80"
+                            class="w-full h-24 sm:h-32 object-cover"
+                            alt="Tomato crop">
+
+                        <div class="absolute inset-x-0 bottom-0
+                                    bg-black/60 text-white p-2
+                                    text-[10px] font-bold">
+                            Tomato
+                        </div>
+
+                    </div>
+
+
+                    <div class="example-img rounded-xl overflow-hidden
+                                relative"
+                         data-disease="Potato Early Blight">
+
+                        <img
+                            src="https://images.unsplash.com/photo-1518977676601-b53f82aba655?auto=format&fit=crop&w=400&q=80"
+                            class="w-full h-24 sm:h-32 object-cover"
+                            alt="Potato crop">
+
+                        <div class="absolute inset-x-0 bottom-0
+                                    bg-black/60 text-white p-2
+                                    text-[10px] font-bold">
+                            Potato
+                        </div>
+
+                    </div>
+
+
+                    <div class="example-img rounded-xl overflow-hidden
+                                relative"
+                         data-disease="Healthy Leaf">
+
+                        <img
+                            src="https://images.unsplash.com/photo-1501004318641-b39e6451bec6?auto=format&fit=crop&w=400&q=80"
+                            class="w-full h-24 sm:h-32 object-cover"
+                            alt="Healthy crop">
+
+                        <div class="absolute inset-x-0 bottom-0
+                                    bg-black/60 text-white p-2
+                                    text-[10px] font-bold">
+                            Healthy
+                        </div>
+
+                    </div>
+
+
+                    <div class="example-img rounded-xl overflow-hidden
+                                relative"
+                         data-disease="Leaf Spot Disease">
+
+                        <img
+                            src="https://images.unsplash.com/photo-1530968464165-7a1861cbaf9f?auto=format&fit=crop&w=400&q=80"
+                            class="w-full h-24 sm:h-32 object-cover"
+                            alt="Affected crop">
+
+                        <div class="absolute inset-x-0 bottom-0
+                                    bg-black/60 text-white p-2
+                                    text-[10px] font-bold">
+                            Leaf Spot
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- =================================================
+             WEATHER SIDEBAR
+        ================================================== -->
+
+        <aside class="space-y-6">
+
+
+            <div class="bg-white rounded-3xl border border-slate-200
+                        shadow-card p-6">
+
+                <div class="flex items-center justify-between">
+
+                    <div>
+
+                        <p class="text-xs text-slate-400 uppercase
+                                  font-bold tracking-wider"
+                           data-i18n="localConditions">
+                            Local Conditions
+                        </p>
+
+                        <h3 class="font-display text-lg font-bold mt-1"
+                            data-i18n="farmWeather">
+                            Farm Weather
+                        </h3>
+
+                    </div>
+
+                    <div class="text-3xl">
+                        🌤️
+                    </div>
+
+                </div>
+
+
+                <div class="mt-6 flex items-end justify-between">
+
+                    <div>
+
+                        <span id="temperature"
+                              class="font-display text-5xl font-extrabold">
+                            27°
+                        </span>
+
+                        <p class="text-sm text-slate-400 mt-1"
+                           data-i18n="partlyCloudy">
+                            Partly cloudy
+                        </p>
+
+                    </div>
+
+
+                    <div class="text-right text-sm">
+
+                        <p>
+                            💧
+                            <span data-i18n="humidity">
+                                Humidity
+                            </span>
+
+                            <strong id="humidity">
+                                78%
+                            </strong>
+                        </p>
+
+                        <p class="mt-2">
+                            💨
+                            <span data-i18n="wind">
+                                Wind
+                            </span>
+
+                            <strong>
+                                12 km/h
+                            </strong>
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <!-- RISK -->
+
+                <div class="mt-6 p-4 rounded-2xl
+                            bg-amber-50 border border-amber-100">
+
+                    <div class="flex justify-between items-center">
+
+                        <span class="text-sm font-bold text-amber-800"
+                              data-i18n="diseaseRisk">
+                            Disease Risk
+                        </span>
+
+                        <span id="riskBadge"
+                              class="px-2.5 py-1 rounded-full
+                                     bg-amber-200 text-amber-800
+                                     text-xs font-bold">
+                            MODERATE
+                        </span>
+
+                    </div>
+
+
+                    <p id="riskMessage"
+                       class="text-xs text-amber-700 mt-2 leading-5">
+                        High humidity may increase fungal disease risk.
+                    </p>
+
+                </div>
+
+
+                <div class="mt-5 text-xs text-slate-400"
+                     data-i18n="weatherUpdated">
+                    Updated a few minutes ago
+                </div>
+
+            </div>
+
+
+            <!-- FARMER TIP -->
+
+            <div class="bg-emerald-900 rounded-3xl p-6 text-white">
+
+                <div class="flex items-center gap-3">
+
+                    <div class="w-10 h-10 bg-white/10 rounded-xl
+                                flex items-center justify-center">
+                        💡
+                    </div>
+
+                    <div>
+
+                        <h3 class="font-bold"
+                            data-i18n="farmerTip">
+                            Farmer's Tip
+                        </h3>
+
+                        <p class="text-xs text-emerald-200"
+                           data-i18n="todayRecommendation">
+                            Today's recommendation
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <p class="mt-5 text-sm leading-6 text-emerald-50"
+                   data-i18n="tipText">
+
+                    Avoid overhead irrigation in the evening.
+                    Wet leaves overnight can create favorable
+                    conditions for fungal infections.
+
+                </p>
+
+            </div>
+
+
+            <!-- RECENT ACTIVITY -->
+
+            <div class="bg-white rounded-3xl border border-slate-200 p-6">
+
+                <div class="flex justify-between items-center">
+
+                    <h3 class="font-bold"
+                        data-i18n="recentActivity">
+                        Recent Activity
+                    </h3>
+
+                    <button class="text-xs text-emerald-600 font-bold"
+                            data-i18n="viewAll">
+                        View all
+                    </button>
+
+                </div>
+
+
+                <div class="mt-5 space-y-4">
+
+
+                    <div class="flex items-center gap-3">
+
+                        <div class="w-10 h-10 rounded-xl bg-red-50
+                                    flex items-center justify-center">
+                            🍅
+                        </div>
+
+                        <div class="flex-1">
+
+                            <p class="text-sm font-semibold">
+                                Tomato Late Blight
+                            </p>
+
+                            <p class="text-xs text-slate-400">
+                                94% confidence
+                            </p>
+
+                        </div>
+
+                        <span class="text-[10px] font-bold text-red-500">
+                            HIGH
+                        </span>
+
+                    </div>
+
+
+                    <div class="flex items-center gap-3">
+
+                        <div class="w-10 h-10 rounded-xl bg-emerald-50
+                                    flex items-center justify-center">
+                            🌱
+                        </div>
+
+                        <div class="flex-1">
+
+                            <p class="text-sm font-semibold">
+                                Healthy Crop
+                            </p>
+
+                            <p class="text-xs text-slate-400">
+                                97% confidence
+                            </p>
+
+                        </div>
+
+                        <span class="text-[10px] font-bold text-emerald-600">
+                            SAFE
+                        </span>
+
+                    </div>
+
+
+                    <div class="flex items-center gap-3">
+
+                        <div class="w-10 h-10 rounded-xl bg-amber-50
+                                    flex items-center justify-center">
+                            🥔
+                        </div>
+
+                        <div class="flex-1">
+
+                            <p class="text-sm font-semibold">
+                                Early Blight
+                            </p>
+
+                            <p class="text-xs text-slate-400">
+                                89% confidence
+                            </p>
+
+                        </div>
+
+                        <span class="text-[10px] font-bold text-amber-600">
+                            MEDIUM
+                        </span>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </aside>
+
+    </div>
+
+</section>
+
+
+<!-- =========================================================
+     RESULTS
+========================================================= -->
+
+<section id="results"
+         class="hidden max-w-7xl mx-auto px-4 sm:px-6
+                lg:px-8 pb-14">
+
+
+    <div class="flex items-center justify-between mb-6">
+
+        <div>
+
+            <span class="text-xs font-bold text-emerald-600
+                         uppercase tracking-widest"
+                  data-i18n="diagnosisComplete">
+                Diagnosis Complete
+            </span>
+
+            <h2 class="font-display text-2xl sm:text-3xl
+                       font-extrabold mt-1"
+                data-i18n="cropHealthReport">
+                Crop Health Report
+            </h2>
+
+        </div>
+
+        <button onclick="window.print()"
+                class="hidden sm:block px-4 py-2 rounded-xl
+                       border border-slate-200 bg-white
+                       text-sm font-semibold">
+
+            🖨️
+            <span data-i18n="printReport">
+                Print Report
+            </span>
+
+        </button>
+
+    </div>
+
+
+    <div class="grid lg:grid-cols-3 gap-6">
+
+
+        <!-- MAIN RESULT -->
+
+        <div class="lg:col-span-2 space-y-6">
+
+
+            <!-- DISEASE SUMMARY -->
+
+            <div class="bg-white rounded-3xl border border-slate-200
+                        shadow-soft p-6 sm:p-8 result-appear">
+
+                <div class="flex flex-col sm:flex-row
+                            sm:items-center justify-between gap-5">
+
+
+                    <div class="flex items-center gap-4">
+
+                        <div id="resultIcon"
+                             class="w-16 h-16 rounded-2xl
+                                    bg-red-50 flex items-center
+                                    justify-center text-3xl">
+                            🍅
+                        </div>
+
+                        <div>
+
+                            <p class="text-xs text-slate-400 uppercase
+                                      font-bold tracking-wider"
+                               data-i18n="detectedCondition">
+                                Detected Condition
+                            </p>
+
+                            <h3 id="diseaseName"
+                                class="font-display text-2xl font-extrabold mt-1">
+                                Tomato Late Blight
+                            </h3>
+
+                            <p id="diseaseScientific"
+                               class="text-sm text-slate-400 mt-1 italic">
+                                Phytophthora infestans
+                            </p>
+
+                        </div>
+
+                    </div>
+
+
+                    <span id="severityBadge"
+                          class="px-3 py-1.5 rounded-full
+                                 bg-red-100 text-red-700
+                                 text-xs font-bold">
+                        HIGH SEVERITY
+                    </span>
+
+                </div>
+
+
+                <!-- CONFIDENCE -->
+
+                <div class="mt-8">
+
+                    <div class="flex justify-between mb-2">
+
+                        <span class="text-sm font-semibold"
+                              data-i18n="aiConfidence">
+                            AI Confidence
+                        </span>
+
+                        <span id="confidenceText"
+                              class="text-sm font-bold text-emerald-700">
+                            94%
+                        </span>
+
+                    </div>
+
+
+                    <div class="h-3 bg-slate-100 rounded-full overflow-hidden">
+
+                        <div id="confidenceBar"
+                             class="confidence-bar h-full
+                                    bg-emerald-500 rounded-full"
+                             style="width:94%">
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- SYMPTOMS -->
+
+            <div class="bg-white rounded-3xl border border-slate-200
+                        shadow-card p-6 sm:p-8">
+
+                <div class="flex items-center gap-3 mb-6">
+
+                    <div class="w-10 h-10 rounded-xl bg-amber-50
+                                flex items-center justify-center">
+                        🔎
+                    </div>
+
+                    <div>
+
+                        <h3 class="font-display text-lg font-bold"
+                            data-i18n="symptomsTitle">
+                            Symptoms to Look For
+                        </h3>
+
+                        <p class="text-xs text-slate-400"
+                           data-i18n="symptomsSubtitle">
+                            Common visual indicators
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div id="symptomsList"
+                     class="grid sm:grid-cols-2 gap-3">
+                </div>
+
+            </div>
+
+
+            <!-- TREATMENT -->
+
+            <div class="bg-white rounded-3xl border border-slate-200
+                        shadow-card p-6 sm:p-8">
+
+
+                <div class="mb-6">
+
+                    <span class="text-xs font-bold text-emerald-600
+                                 uppercase tracking-widest"
+                          data-i18n="recommendedResponse">
+                        Recommended Response
+                    </span>
+
+                    <h3 class="font-display text-xl font-extrabold mt-1"
+                        data-i18n="treatmentPlan">
+                        Treatment Plan
+                    </h3>
+
+                </div>
+
+
+                <div class="grid md:grid-cols-2 gap-5">
+
+
+                    <!-- ORGANIC -->
+
+                    <div class="rounded-2xl bg-emerald-50
+                                border border-emerald-100 p-5">
+
+                        <div class="flex items-center gap-3">
+
+                            <div class="w-10 h-10 rounded-xl bg-white
+                                        flex items-center justify-center">
+                                🌿
+                            </div>
+
+                            <div>
+
+                                <h4 class="font-bold text-emerald-900"
+                                    data-i18n="organicRemedies">
+                                    Organic Remedies
+                                </h4>
+
+                                <p class="text-xs text-emerald-700"
+                                   data-i18n="ecoFriendly">
+                                    Eco-friendly approach
+                                </p>
+
+                            </div>
+
+                        </div>
+
+
+                        <ul id="organicList"
+                            class="mt-5 space-y-3 text-sm text-emerald-900">
+                        </ul>
+
+                    </div>
+
+
+                    <!-- CHEMICAL -->
+
+                    <div class="rounded-2xl bg-orange-50
+                                border border-orange-100 p-5">
+
+                        <div class="flex items-center gap-3">
+
+                            <div class="w-10 h-10 rounded-xl bg-white
+                                        flex items-center justify-center">
+                                🧪
+                            </div>
+
+                            <div>
+
+                                <h4 class="font-bold text-orange-900"
+                                    data-i18n="chemicalSolutions">
+                                    Chemical Solutions
+                                </h4>
+
+                                <p class="text-xs text-orange-700"
+                                   data-i18n="useResponsibly">
+                                    Use responsibly
+                                </p>
+
+                            </div>
+
+                        </div>
+
+
+                        <ul id="chemicalList"
+                            class="mt-5 space-y-3 text-sm text-orange-900">
+                        </ul>
+
+                    </div>
+
+                </div>
+
+
+                <div class="mt-5 p-4 rounded-xl bg-slate-50
+                            text-xs text-slate-500 leading-5"
+                     data-i18n="treatmentWarning">
+
+                    ⚠️ Always follow the product label, local agricultural
+                    guidance and crop-specific safety intervals before
+                    applying any pesticide.
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- RESULT SIDEBAR -->
+
+        <div class="space-y-6">
+
+
+            <!-- PRIORITY -->
+
+            <div class="bg-red-900 rounded-3xl p-6 text-white">
+
+                <p class="text-xs text-red-200 uppercase font-bold
+                          tracking-wider"
+                   data-i18n="recommendedPriority">
+                    Recommended Priority
+                </p>
+
+                <h3 id="priorityText"
+                    class="font-display text-2xl font-extrabold mt-2">
+                    Act Within 24–48 Hours
+                </h3>
+
+                <p class="text-sm text-red-100 mt-4 leading-6"
+                   data-i18n="priorityDescription">
+
+                    Isolate affected plants and monitor nearby
+                    crops for spreading symptoms.
+
+                </p>
+
+                <button onclick="document.getElementById('prevention').scrollIntoView()"
+                        class="mt-5 w-full py-3 rounded-xl
+                               bg-white text-red-900 font-bold text-sm"
+                        data-i18n="viewPrevention">
+
+                    View Prevention Plan →
+
+                </button>
+
+            </div>
+
+
+            <!-- BREAKDOWN -->
+
+            <div class="bg-white rounded-3xl border border-slate-200 p-6">
+
+                <h3 class="font-bold"
+                    data-i18n="diagnosisBreakdown">
+                    Diagnosis Breakdown
+                </h3>
+
+
+                <div class="mt-5 space-y-5">
+
+
+                    <div>
+
+                        <div class="flex justify-between text-xs mb-2">
+
+                            <span data-i18n="visualPattern">
+                                Visual Pattern
+                            </span>
+
+                            <strong>96%</strong>
+
+                        </div>
+
+                        <div class="h-2 bg-slate-100 rounded-full">
+
+                            <div class="h-full w-[96%]
+                                        bg-emerald-500 rounded-full">
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <div>
+
+                        <div class="flex justify-between text-xs mb-2">
+
+                            <span data-i18n="colorAnalysis">
+                                Color Analysis
+                            </span>
+
+                            <strong>93%</strong>
+
+                        </div>
+
+                        <div class="h-2 bg-slate-100 rounded-full">
+
+                            <div class="h-full w-[93%]
+                                        bg-emerald-500 rounded-full">
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <div>
+
+                        <div class="flex justify-between text-xs mb-2">
+
+                            <span data-i18n="leafTexture">
+                                Leaf Texture
+                            </span>
+
+                            <strong>91%</strong>
+
+                        </div>
+
+                        <div class="h-2 bg-slate-100 rounded-full">
+
+                            <div class="h-full w-[91%]
+                                        bg-emerald-500 rounded-full">
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- DISCLAIMER -->
+
+            <div class="bg-white rounded-3xl border border-slate-200 p-6">
+
+                <div class="flex gap-3">
+
+                    <span>ℹ️</span>
+
+                    <p class="text-xs text-slate-500 leading-5"
+                       data-i18n="disclaimer">
+
+                        This prototype provides an AI-assisted
+                        preliminary diagnosis. Confirm serious
+                        crop disease with a qualified agricultural
+                        expert before taking major action.
+
+                    </p>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- =========================================================
+     PREVENTION TIMELINE
+========================================================= -->
+
+<section id="prevention"
+         class="bg-white border-y border-slate-200">
+
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6
+                lg:px-8 py-16">
+
+
+        <div class="max-w-2xl mb-12">
+
+            <span class="text-xs font-bold text-emerald-600
+                         uppercase tracking-widest"
+                  data-i18n="longTermProtection">
+                Long-Term Protection
+            </span>
+
+            <h2 class="font-display text-3xl sm:text-4xl
+                       font-extrabold mt-2">
+
+                <span data-i18n="preventDisease">
+                    Prevent the disease
+                </span>
+
+                <span class="text-emerald-600"
+                      data-i18n="nextSeason">
+                    next season.
+                </span>
+
+            </h2>
+
+            <p class="text-slate-500 mt-4 leading-7"
+               data-i18n="preventionDescription">
+
+                Follow this seasonal roadmap to reduce the probability
+                of recurring crop disease.
+
+            </p>
+
+        </div>
+
+
+        <div class="relative max-w-4xl">
+
+
+            <!-- STEP 1 -->
+
+            <div class="timeline-item relative flex gap-6 pb-10">
+
+                <div class="timeline-line"></div>
+
+                <div class="relative z-10 w-10 h-10 shrink-0
+                            rounded-full bg-emerald-600 text-white
+                            flex items-center justify-center font-bold">
+                    1
+                </div>
+
+                <div class="pt-1">
+
+                    <p class="text-xs text-emerald-600 font-bold uppercase"
+                       data-i18n="beforePlanting">
+                        Before Planting
+                    </p>
+
+                    <h3 class="font-display text-lg font-bold mt-1"
+                        data-i18n="resistantVarieties">
+                        Choose resistant varieties
+                    </h3>
+
+                    <p class="text-sm text-slate-500 mt-2 leading-6"
+                       data-i18n="step1">
+                        Select locally recommended disease-resistant
+                        varieties and use certified healthy seeds or
+                        seedlings.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <!-- STEP 2 -->
+
+            <div class="timeline-item relative flex gap-6 pb-10">
+
+                <div class="timeline-line"></div>
+
+                <div class="relative z-10 w-10 h-10 shrink-0
+                            rounded-full bg-emerald-600 text-white
+                            flex items-center justify-center font-bold">
+                    2
+                </div>
+
+                <div class="pt-1">
+
+                    <p class="text-xs text-emerald-600 font-bold uppercase"
+                       data-i18n="planting">
+                        Planting
+                    </p>
+
+                    <h3 class="font-display text-lg font-bold mt-1"
+                        data-i18n="airflow">
+                        Improve spacing & airflow
+                    </h3>
+
+                    <p class="text-sm text-slate-500 mt-2 leading-6"
+                       data-i18n="step2">
+                        Avoid overcrowding. Good plant spacing helps
+                        leaves dry faster and reduces prolonged moisture.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <!-- STEP 3 -->
+
+            <div class="timeline-item relative flex gap-6 pb-10">
+
+                <div class="timeline-line"></div>
+
+                <div class="relative z-10 w-10 h-10 shrink-0
+                            rounded-full bg-emerald-600 text-white
+                            flex items-center justify-center font-bold">
+                    3
+                </div>
+
+                <div class="pt-1">
+
+                    <p class="text-xs text-emerald-600 font-bold uppercase"
+                       data-i18n="growingSeason">
+                        Growing Season
+                    </p>
+
+                    <h3 class="font-display text-lg font-bold mt-1"
+                        data-i18n="monitorLeaves">
+                        Monitor leaves weekly
+                    </h3>
+
+                    <p class="text-sm text-slate-500 mt-2 leading-6"
+                       data-i18n="step3">
+                        Inspect leaves regularly and upload suspicious
+                        images as soon as symptoms appear.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <!-- STEP 4 -->
+
+            <div class="timeline-item relative flex gap-6 pb-10">
+
+                <div class="timeline-line"></div>
+
+                <div class="relative z-10 w-10 h-10 shrink-0
+                            rounded-full bg-emerald-600 text-white
+                            flex items-center justify-center font-bold">
+                    4
+                </div>
+
+                <div class="pt-1">
+
+                    <p class="text-xs text-emerald-600 font-bold uppercase"
+                       data-i18n="irrigation">
+                        Irrigation
+                    </p>
+
+                    <h3 class="font-display text-lg font-bold mt-1"
+                        data-i18n="keepFoliageDry">
+                        Keep foliage dry
+                    </h3>
+
+                    <p class="text-sm text-slate-500 mt-2 leading-6"
+                       data-i18n="step4">
+                        Prefer irrigation methods that minimize
+                        unnecessary leaf wetness.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <!-- STEP 5 -->
+
+            <div class="timeline-item relative flex gap-6">
+
+                <div class="relative z-10 w-10 h-10 shrink-0
+                            rounded-full bg-emerald-600 text-white
+                            flex items-center justify-center font-bold">
+                    5
+                </div>
+
+                <div class="pt-1">
+
+                    <p class="text-xs text-emerald-600 font-bold uppercase"
+                       data-i18n="afterHarvest">
+                        After Harvest
+                    </p>
+
+                    <h3 class="font-display text-lg font-bold mt-1"
+                        data-i18n="removeInfected">
+                        Remove infected plant material
+                    </h3>
+
+                    <p class="text-sm text-slate-500 mt-2 leading-6"
+                       data-i18n="step5">
+                        Sanitize tools and remove diseased plant debris
+                        according to local agricultural recommendations.
+                    </p>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- =========================================================
+     HOW IT WORKS
+========================================================= -->
+
+<section id="about"
+         class="max-w-7xl mx-auto px-4 sm:px-6
+                lg:px-8 py-16">
+
+
+    <div class="text-center max-w-2xl mx-auto">
+
+        <span class="text-xs font-bold text-emerald-600
+                     uppercase tracking-widest"
+              data-i18n="simpleProcess">
+            Simple Process
+        </span>
+
+        <h2 class="font-display text-3xl font-extrabold mt-2"
+            data-i18n="fromPhoto">
+            From leaf photo to action plan
+        </h2>
+
+        <p class="text-slate-500 mt-4"
+           data-i18n="simpleDescription">
+            AgriSense is designed to make AI-powered crop
+            diagnosis simple for farmers.
+        </p>
+
+    </div>
+
+
+    <div class="grid md:grid-cols-3 gap-6 mt-10">
+
+
+        <div class="bg-white border border-slate-200
+                    rounded-3xl p-7 text-center shadow-card">
+
+            <div class="w-14 h-14 mx-auto rounded-2xl bg-blue-50
+                        flex items-center justify-center text-2xl">
+                📸
+            </div>
+
+            <h3 class="font-bold text-lg mt-5"
+                data-i18n="uploadStep">
+                01. Upload
+            </h3>
+
+            <p class="text-sm text-slate-500 mt-3 leading-6"
+               data-i18n="uploadStepDescription">
+                Take a clear photo of the affected crop leaf
+                and upload it.
+            </p>
+
+        </div>
+
+
+        <div class="bg-white border border-slate-200
+                    rounded-3xl p-7 text-center shadow-card">
+
+            <div class="w-14 h-14 mx-auto rounded-2xl bg-purple-50
+                        flex items-center justify-center text-2xl">
+                🧠
+            </div>
+
+            <h3 class="font-bold text-lg mt-5"
+                data-i18n="analyzeStep">
+                02. Analyze
+            </h3>
+
+            <p class="text-sm text-slate-500 mt-3 leading-6"
+               data-i18n="analyzeStepDescription">
+                The AI model analyzes visible patterns,
+                colors and symptoms.
+            </p>
+
+        </div>
+
+
+        <div class="bg-white border border-slate-200
+                    rounded-3xl p-7 text-center shadow-card">
+
+            <div class="w-14 h-14 mx-auto rounded-2xl bg-emerald-50
+                        flex items-center justify-center text-2xl">
+                🌱
+            </div>
+
+            <h3 class="font-bold text-lg mt-5"
+                data-i18n="actionStep">
+                03. Take Action
+            </h3>
+
+            <p class="text-sm text-slate-500 mt-3 leading-6"
+               data-i18n="actionStepDescription">
+                Get disease assessment, severity, treatment
+                and prevention guidance.
+            </p>
+
+        </div>
+
+    </div>
+
+</section>
+
+</main>
+
+
+<!-- =========================================================
+     FOOTER
+========================================================= -->
+
+<footer class="bg-slate-950 text-white">
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6
+                lg:px-8 py-10">
+
+        <div class="flex flex-col md:flex-row
+                    justify-between gap-6">
+
+            <div>
+
+                <div class="flex items-center gap-3">
+
+                    <div class="w-10 h-10 bg-emerald-700
+                                rounded-xl flex items-center
+                                justify-center">
+                        🌱
+                    </div>
+
+                    <span class="font-display font-extrabold">
+                        AgriSense AI
+                    </span>
+
+                </div>
+
+                <p class="text-sm text-slate-400 mt-4 max-w-md"
+                   data-i18n="footerDescription">
+
+                    AI-assisted crop health monitoring designed
+                    to help farmers detect potential diseases earlier.
+
+                </p>
+
+            </div>
+
+
+            <div class="text-sm text-slate-400">
+
+                <p>
+                    © 2026 AgriSense AI
+                </p>
+
+                <p class="mt-2">
+                    Smart Agriculture • AI • IoT
+                </p>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</footer>
+
+
+<!-- =========================================================
+     JAVASCRIPT
+========================================================= -->
+
+<script>
+
+
+/* =========================================================
+   MULTILINGUAL TRANSLATION DATABASE
+========================================================= */
+
+const translations = {
+
+    en: {
+
+        navDashboard: "Dashboard",
+        navDiagnosis: "Diagnosis",
+        navPrevention: "Prevention",
+        navAbout: "About",
+
+        farmerDashboard: "Farmer Dashboard",
+
+        systemOnline: "AI DIAGNOSTIC SYSTEM ONLINE",
+
+        heroTitle: "Protect your crops.",
+        heroTitleGreen: "Predict diseases early.",
+
+        heroDescription:
+        "Upload a photo of a crop leaf and our intelligent diagnostic engine will analyze visible symptoms, estimate disease severity and recommend next steps.",
+
+        today: "Today",
+
+        totalScans: "TOTAL SCANS",
+        monthIncrease: "↑ 12% this month",
+
+        healthyCrops: "HEALTHY CROPS",
+        healthyPercentage: "71% of total scans",
+
+        activeAlerts: "ACTIVE ALERTS",
+        needsAttention: "Needs attention",
+
+        aiAccuracy: "AI ACCURACY",
+        modelPerformance: "Model performance",
+
+        newDiagnosis: "New Crop Diagnosis",
+
+        uploadInstruction:
+        "Upload a clear image of an affected leaf.",
+
+        dropImage: "Drop your crop image here",
+        orBrowse: "or click to browse from your device",
+        chooseImage: "Choose Crop Image",
+
+        clearImage: "✓ Clear leaf image",
+        naturalLighting: "✓ Natural lighting",
+        maxSize: "✓ Max 10 MB",
+
+        removeImage: "Remove image",
+
+        analyzeCrop: "Analyze Crop Health",
+
+        analyzing: "AI is analyzing your crop...",
+
+        tryExample: "Try an Example",
+        clickExample:
+        "Click an image to test the diagnosis engine.",
+
+        localConditions: "Local Conditions",
+        farmWeather: "Farm Weather",
+        partlyCloudy: "Partly cloudy",
+
+        humidity: "Humidity",
+        wind: "Wind",
+
+        diseaseRisk: "Disease Risk",
+
+        weatherUpdated: "Updated a few minutes ago",
+
+        farmerTip: "Farmer's Tip",
+        todayRecommendation: "Today's recommendation",
+
+        tipText:
+        "Avoid overhead irrigation in the evening. Wet leaves overnight can create favorable conditions for fungal infections.",
+
+        recentActivity: "Recent Activity",
+        viewAll: "View all",
+
+        diagnosisComplete: "Diagnosis Complete",
+        cropHealthReport: "Crop Health Report",
+        printReport: "Print Report",
+
+        detectedCondition: "Detected Condition",
+
+        aiConfidence: "AI Confidence",
+
+        symptomsTitle: "Symptoms to Look For",
+        symptomsSubtitle: "Common visual indicators",
+
+        recommendedResponse: "Recommended Response",
+        treatmentPlan: "Treatment Plan",
+
+        organicRemedies: "Organic Remedies",
+        ecoFriendly: "Eco-friendly approach",
+
+        chemicalSolutions: "Chemical Solutions",
+        useResponsibly: "Use responsibly",
+
+        treatmentWarning:
+        "⚠️ Always follow the product label, local agricultural guidance and crop-specific safety intervals before applying any pesticide.",
+
+        recommendedPriority: "Recommended Priority",
+
+        priorityDescription:
+        "Isolate affected plants and monitor nearby crops for spreading symptoms.",
+
+        viewPrevention: "View Prevention Plan →",
+
+        diagnosisBreakdown: "Diagnosis Breakdown",
+
+        visualPattern: "Visual Pattern",
+        colorAnalysis: "Color Analysis",
+        leafTexture: "Leaf Texture",
+
+        disclaimer:
+        "This prototype provides an AI-assisted preliminary diagnosis. Confirm serious crop disease with a qualified agricultural expert before taking major action.",
+
+        longTermProtection: "Long-Term Protection",
+        preventDisease: "Prevent the disease",
+        nextSeason: "next season.",
+
+        preventionDescription:
+        "Follow this seasonal roadmap to reduce the probability of recurring crop disease.",
+
+        beforePlanting: "Before Planting",
+        resistantVarieties: "Choose resistant varieties",
+
+        step1:
+        "Select locally recommended disease-resistant varieties and use certified healthy seeds or seedlings.",
+
+        planting: "Planting",
+        airflow: "Improve spacing & airflow",
+
+        step2:
+        "Avoid overcrowding. Good plant spacing helps leaves dry faster and reduces prolonged moisture.",
+
+        growingSeason: "Growing Season",
+        monitorLeaves: "Monitor leaves weekly",
+
+        step3:
+        "Inspect leaves regularly and upload suspicious images as soon as symptoms appear.",
+
+        irrigation: "Irrigation",
+        keepFoliageDry: "Keep foliage dry",
+
+        step4:
+        "Prefer irrigation methods that minimize unnecessary leaf wetness.",
+
+        afterHarvest: "After Harvest",
+        removeInfected: "Remove infected plant material",
+
+        step5:
+        "Sanitize tools and remove diseased plant debris according to local agricultural recommendations.",
+
+        simpleProcess: "Simple Process",
+        fromPhoto: "From leaf photo to action plan",
+
+        simpleDescription:
+        "AgriSense is designed to make AI-powered crop diagnosis simple for farmers.",
+
+        uploadStep: "01. Upload",
+        uploadStepDescription:
+        "Take a clear photo of the affected crop leaf and upload it.",
+
+        analyzeStep: "02. Analyze",
+        analyzeStepDescription:
+        "The AI model analyzes visible patterns, colors and symptoms.",
+
+        actionStep: "03. Take Action",
+        actionStepDescription:
+        "Get disease assessment, severity, treatment and prevention guidance.",
+
+        footerDescription:
+        "AI-assisted crop health monitoring designed to help farmers detect potential diseases earlier."
+
+    },
+
+
+    hi: {
+
+        navDashboard: "डैशबोर्ड",
+        navDiagnosis: "रोग पहचान",
+        navPrevention: "बचाव",
+        navAbout: "हमारे बारे में",
+
+        farmerDashboard: "किसान डैशबोर्ड",
+
+        systemOnline: "AI रोग पहचान प्रणाली सक्रिय है",
+
+        heroTitle: "अपनी फसल को सुरक्षित रखें।",
+        heroTitleGreen: "रोगों की जल्दी पहचान करें।",
+
+        heroDescription:
+        "फसल के पत्ते की तस्वीर अपलोड करें। हमारा AI सिस्टम दिखाई देने वाले लक्षणों का विश्लेषण करके संभावित रोग, गंभीरता और अगले कदम बताएगा।",
+
+        today: "आज",
+
+        totalScans: "कुल स्कैन",
+        monthIncrease: "↑ इस महीने 12% अधिक",
+
+        healthyCrops: "स्वस्थ फसलें",
+        healthyPercentage: "कुल स्कैन का 71%",
+
+        activeAlerts: "सक्रिय चेतावनी",
+        needsAttention: "ध्यान देने की आवश्यकता",
+
+        aiAccuracy: "AI सटीकता",
+        modelPerformance: "मॉडल प्रदर्शन",
+
+        newDiagnosis: "नई फसल जांच",
+
+        uploadInstruction:
+        "प्रभावित पत्ते की साफ तस्वीर अपलोड करें।",
+
+        dropImage: "फसल की तस्वीर यहां डालें",
+        orBrowse: "या अपने डिवाइस से तस्वीर चुनें",
+        chooseImage: "फसल की तस्वीर चुनें",
+
+        clearImage: "✓ साफ पत्ते की तस्वीर",
+        naturalLighting: "✓ प्राकृतिक रोशनी",
+        maxSize: "✓ अधिकतम 10 MB",
+
+        removeImage: "तस्वीर हटाएं",
+
+        analyzeCrop: "फसल की जांच करें",
+
+        analyzing: "AI आपकी फसल का विश्लेषण कर रहा है...",
+
+        tryExample: "उदाहरण आज़माएं",
+        clickExample:
+        "जांच के लिए किसी तस्वीर पर क्लिक करें।",
+
+        localConditions: "स्थानीय मौसम",
+        farmWeather: "खेत का मौसम",
+        partlyCloudy: "आंशिक रूप से बादल",
+
+        humidity: "नमी",
+        wind: "हवा",
+
+        diseaseRisk: "रोग का जोखिम",
+
+        weatherUpdated: "कुछ मिनट पहले अपडेट किया गया",
+
+        farmerTip: "किसान की सलाह",
+        todayRecommendation: "आज की सलाह",
+
+        tipText:
+        "शाम के समय ऊपर से सिंचाई करने से बचें। रातभर गीली पत्तियां फंगल रोगों के लिए अनुकूल वातावरण बना सकती हैं।",
+
+        recentActivity: "हाल की गतिविधि",
+        viewAll: "सभी देखें",
+
+        diagnosisComplete: "जांच पूरी हुई",
+        cropHealthReport: "फसल स्वास्थ्य रिपोर्ट",
+        printReport: "रिपोर्ट प्रिंट करें",
+
+        detectedCondition: "पहचाना गया रोग",
+
+        aiConfidence: "AI का विश्वास स्तर",
+
+        symptomsTitle: "देखने योग्य लक्षण",
+        symptomsSubtitle: "सामान्य दिखाई देने वाले संकेत",
+
+        recommendedResponse: "अनुशंसित कार्रवाई",
+        treatmentPlan: "उपचार योजना",
+
+        organicRemedies: "जैविक उपाय",
+        ecoFriendly: "पर्यावरण अनुकूल तरीका",
+
+        chemicalSolutions: "रासायनिक समाधान",
+        useResponsibly: "सावधानी से उपयोग करें",
+
+        treatmentWarning:
+        "⚠️ किसी भी कीटनाशक या फफूंदनाशक का उपयोग करने से पहले उत्पाद के लेबल और स्थानीय कृषि विशेषज्ञ की सलाह का पालन करें।",
+
+        recommendedPriority: "अनुशंसित प्राथमिकता",
+
+        priorityDescription:
+        "प्रभावित पौधों को अलग करें और आसपास की फसल में रोग फैलने के संकेतों पर नजर रखें।",
+
+        viewPrevention: "बचाव योजना देखें →",
+
+        diagnosisBreakdown: "जांच का विवरण",
+
+        visualPattern: "दृश्य पैटर्न",
+        colorAnalysis: "रंग विश्लेषण",
+        leafTexture: "पत्ती की बनावट",
+
+        disclaimer:
+        "यह प्रोटोटाइप AI आधारित प्रारंभिक जांच प्रदान करता है। गंभीर रोग की स्थिति में कृषि विशेषज्ञ से पुष्टि करें।",
+
+        longTermProtection: "लंबे समय की सुरक्षा",
+        preventDisease: "अगले मौसम में",
+        nextSeason: "रोग से बचाव करें।",
+
+        preventionDescription:
+        "इस मौसमी योजना का पालन करके दोबारा रोग होने की संभावना कम करें।",
+
+        beforePlanting: "बुवाई से पहले",
+        resistantVarieties: "रोग प्रतिरोधी किस्म चुनें",
+
+        step1:
+        "स्थानीय रूप से अनुशंसित रोग प्रतिरोधी किस्मों और प्रमाणित स्वस्थ बीजों का उपयोग करें।",
+
+        planting: "बुवाई",
+        airflow: "पौधों के बीच पर्याप्त दूरी रखें",
+
+        step2:
+        "बहुत अधिक पौधे एक साथ न लगाएं। उचित दूरी से पत्तियां जल्दी सूखती हैं।",
+
+        growingSeason: "फसल का मौसम",
+        monitorLeaves: "हर सप्ताह पत्तियों की जांच करें",
+
+        step3:
+        "पत्तियों की नियमित जांच करें और लक्षण दिखाई देने पर तस्वीर अपलोड करें।",
+
+        irrigation: "सिंचाई",
+        keepFoliageDry: "पत्तियों को सूखा रखें",
+
+        step4:
+        "ऐसी सिंचाई विधि अपनाएं जिससे पत्तियां अनावश्यक रूप से गीली न हों।",
+
+        afterHarvest: "कटाई के बाद",
+        removeInfected: "संक्रमित पौधों को हटाएं",
+
+        step5:
+        "उपकरणों को साफ करें और संक्रमित पौधों के अवशेषों को सुरक्षित तरीके से हटाएं।",
+
+        simpleProcess: "सरल प्रक्रिया",
+        fromPhoto: "पत्ते की तस्वीर से समाधान तक",
+
+        simpleDescription:
+        "AgriSense किसानों के लिए AI आधारित फसल जांच को आसान बनाता है।",
+
+        uploadStep: "01. अपलोड",
+        uploadStepDescription:
+        "प्रभावित पत्ते की साफ तस्वीर लें और अपलोड करें।",
+
+        analyzeStep: "02. विश्लेषण",
+        analyzeStepDescription:
+        "AI मॉडल रंग, पैटर्न और लक्षणों का विश्लेषण करता है।",
+
+        actionStep: "03. कार्रवाई",
+        actionStepDescription:
+        "रोग, गंभीरता, उपचार और बचाव की जानकारी प्राप्त करें।",
+
+        footerDescription:
+        "AI आधारित फसल स्वास्थ्य निगरानी जो किसानों को संभावित रोगों की जल्दी पहचान में मदद करती है।"
+
+    },
+
+
+    mr: {
+
+        navDashboard: "डॅशबोर्ड",
+        navDiagnosis: "रोग निदान",
+        navPrevention: "प्रतिबंध",
+        navAbout: "आमच्याबद्दल",
+
+        farmerDashboard: "शेतकरी डॅशबोर्ड",
+
+        systemOnline: "AI रोग निदान प्रणाली सुरू आहे",
+
+        heroTitle: "तुमची पिके सुरक्षित ठेवा.",
+        heroTitleGreen: "रोग लवकर ओळखा.",
+
+        heroDescription:
+        "पिकाच्या पानाचा फोटो अपलोड करा. AI प्रणाली पानावरील लक्षणांचे विश्लेषण करून संभाव्य रोग आणि त्याची तीव्रता सांगेल.",
+
+        today: "आज",
+
+        totalScans: "एकूण स्कॅन",
+        monthIncrease: "↑ या महिन्यात 12% वाढ",
+
+        healthyCrops: "निरोगी पिके",
+        healthyPercentage: "एकूण स्कॅनपैकी 71%",
+
+        activeAlerts: "सक्रिय सूचना",
+        needsAttention: "लक्ष देणे आवश्यक",
+
+        aiAccuracy: "AI अचूकता",
+        modelPerformance: "मॉडेल कार्यक्षमता",
+
+        newDiagnosis: "नवीन पीक निदान",
+
+        uploadInstruction:
+        "प्रभावित पानाचा स्पष्ट फोटो अपलोड करा.",
+
+        dropImage: "पिकाचा फोटो येथे टाका",
+        orBrowse: "किंवा तुमच्या डिव्हाइसवरून फोटो निवडा",
+        chooseImage: "पिकाचा फोटो निवडा",
+
+        clearImage: "✓ स्पष्ट पानाचा फोटो",
+        naturalLighting: "✓ नैसर्गिक प्रकाश",
+        maxSize: "✓ कमाल 10 MB",
+
+        removeImage: "फोटो काढा",
+
+        analyzeCrop: "पिकाची तपासणी करा",
+
+        analyzing: "AI तुमच्या पिकाचे विश्लेषण करत आहे...",
+
+        tryExample: "उदाहरण वापरा",
+        clickExample:
+        "तपासणीसाठी फोटोवर क्लिक करा.",
+
+        localConditions: "स्थानिक हवामान",
+        farmWeather: "शेतातील हवामान",
+        partlyCloudy: "अंशतः ढगाळ",
+
+        humidity: "आर्द्रता",
+        wind: "वारा",
+
+        diseaseRisk: "रोगाचा धोका",
+
+        weatherUpdated: "काही मिनिटांपूर्वी अपडेट केले",
+
+        farmerTip: "शेतकऱ्यांसाठी सूचना",
+        todayRecommendation: "आजची शिफारस",
+
+        tipText:
+        "संध्याकाळी वरून पाणी देणे टाळा. रात्री ओलसर पाने बुरशीजन्य रोगांसाठी अनुकूल वातावरण तयार करू शकतात.",
+
+        recentActivity: "अलीकडील क्रिया",
+        viewAll: "सर्व पहा",
+
+        diagnosisComplete: "निदान पूर्ण",
+        cropHealthReport: "पीक आरोग्य अहवाल",
+        printReport: "अहवाल प्रिंट करा",
+
+        detectedCondition: "आढळलेला रोग",
+
+        aiConfidence: "AI विश्वास पातळी",
+
+        symptomsTitle: "दिसणारी लक्षणे",
+        symptomsSubtitle: "सामान्य दृश्य संकेत",
+
+        recommendedResponse: "शिफारस केलेली कृती",
+        treatmentPlan: "उपचार योजना",
+
+        organicRemedies: "सेंद्रिय उपाय",
+        ecoFriendly: "पर्यावरणपूरक उपाय",
+
+        chemicalSolutions: "रासायनिक उपाय",
+        useResponsibly: "जबाबदारीने वापरा",
+
+        treatmentWarning:
+        "⚠️ कोणतेही कीटकनाशक वापरण्यापूर्वी उत्पादनाचे लेबल आणि स्थानिक कृषी तज्ज्ञांच्या मार्गदर्शनाचे पालन करा.",
+
+        recommendedPriority: "शिफारस केलेली प्राथमिकता",
+
+        priorityDescription:
+        "प्रभावित झाडे वेगळी करा आणि आसपासच्या पिकांमध्ये रोग पसरण्याची चिन्हे तपासा.",
+
+        viewPrevention: "प्रतिबंध योजना पहा →",
+
+        diagnosisBreakdown: "निदानाचे विश्लेषण",
+
+        visualPattern: "दृश्य नमुना",
+        colorAnalysis: "रंग विश्लेषण",
+        leafTexture: "पानांचा पोत",
+
+        disclaimer:
+        "हे प्रोटोटाइप AI आधारित प्राथमिक निदान देते. गंभीर रोग असल्यास कृषी तज्ज्ञांकडून पुष्टी करून घ्या.",
+
+        longTermProtection: "दीर्घकालीन संरक्षण",
+        preventDisease: "पुढील हंगामात",
+        nextSeason: "रोग टाळा.",
+
+        preventionDescription:
+        "या हंगामी मार्गदर्शकाचे पालन करून पुन्हा रोग होण्याची शक्यता कमी करा.",
+
+        beforePlanting: "लागवडीपूर्वी",
+        resistantVarieties: "रोगप्रतिकारक वाण निवडा",
+
+        step1:
+        "स्थानिक पातळीवर शिफारस केलेले रोगप्रतिकारक वाण आणि प्रमाणित निरोगी बियाणे वापरा.",
+
+        planting: "लागवड",
+        airflow: "योग्य अंतर ठेवा",
+
+        step2:
+        "पिकांची जास्त गर्दी करू नका. योग्य अंतरामुळे पाने लवकर कोरडी होतात.",
+
+        growingSeason: "पिकाचा हंगाम",
+        monitorLeaves: "दर आठवड्याला पाने तपासा",
+
+        step3:
+        "पानांची नियमित तपासणी करा आणि लक्षणे दिसल्यास फोटो अपलोड करा.",
+
+        irrigation: "सिंचन",
+        keepFoliageDry: "पाने कोरडी ठेवा",
+
+        step4:
+        "पाने अनावश्यकपणे ओली होणार नाहीत अशा सिंचन पद्धती वापरा.",
+
+        afterHarvest: "कापणीनंतर",
+        removeInfected: "संक्रमित वनस्पती काढा",
+
+        step5:
+        "साधने स्वच्छ करा आणि संक्रमित वनस्पतींचे अवशेष योग्य पद्धतीने काढा.",
+
+        simpleProcess: "सोपे टप्पे",
+        fromPhoto: "पानाच्या फोटोपासून कृती योजनेपर्यंत",
+
+        simpleDescription:
+        "AgriSense शेतकऱ्यांसाठी AI आधारित पीक निदान सोपे बनवते.",
+
+        uploadStep: "01. अपलोड",
+        uploadStepDescription:
+        "प्रभावित पानाचा स्पष्ट फोटो घ्या आणि अपलोड करा.",
+
+        analyzeStep: "02. विश्लेषण",
+        analyzeStepDescription:
+        "AI मॉडेल रंग, नमुने आणि लक्षणांचे विश्लेषण करते.",
+
+        actionStep: "03. कृती",
+        actionStepDescription:
+        "रोग, तीव्रता, उपचार आणि प्रतिबंधाची माहिती मिळवा.",
+
+        footerDescription:
+        "AI आधारित पीक आरोग्य प्रणाली जी शेतकऱ्यांना संभाव्य रोग लवकर ओळखण्यास मदत करते."
+
+    },
+
+
+    cg: {
+
+        navDashboard: "डैशबोर्ड",
+        navDiagnosis: "रोग जांच",
+        navPrevention: "बचाव",
+        navAbout: "हमर बारे म",
+
+        farmerDashboard: "किसान डैशबोर्ड",
+
+        systemOnline: "AI रोग जांच सिस्टम चालू हे",
+
+        heroTitle: "अपन फसल ला सुरक्षित रखव।",
+        heroTitleGreen: "रोग ला जल्दी पहिचानव।",
+
+        heroDescription:
+        "फसल के पत्ता के फोटो अपलोड करव। हमर AI सिस्टम पत्ता म दिखत लच्छन के जांच करके संभावित रोग अउ अगला कदम बताही।",
+
+        today: "आज",
+
+        totalScans: "कुल जांच",
+        monthIncrease: "↑ ए महिना 12% जादा",
+
+        healthyCrops: "स्वस्थ फसल",
+        healthyPercentage: "कुल जांच के 71%",
+
+        activeAlerts: "सक्रिय चेतावनी",
+        needsAttention: "ध्यान दे के जरूरत हे",
+
+        aiAccuracy: "AI सटीकता",
+        modelPerformance: "मॉडल के प्रदर्शन",
+
+        newDiagnosis: "नवा फसल जांच",
+
+        uploadInstruction:
+        "प्रभावित पत्ता के साफ फोटो अपलोड करव।",
+
+        dropImage: "फसल के फोटो इहां डालव",
+        orBrowse: "या अपन मोबाइल/कंप्यूटर ले फोटो चुनव",
+        chooseImage: "फसल के फोटो चुनव",
+
+        clearImage: "✓ साफ पत्ता के फोटो",
+        naturalLighting: "✓ प्राकृतिक रोशनी",
+        maxSize: "✓ अधिकतम 10 MB",
+
+        removeImage: "फोटो हटाव",
+
+        analyzeCrop: "फसल के जांच करव",
+
+        analyzing: "AI अपन फसल के जांच करत हे...",
+
+        tryExample: "उदाहरण देखव",
+        clickExample:
+        "जांच करे बर फोटो म क्लिक करव।",
+
+        localConditions: "लोकल मौसम",
+        farmWeather: "खेत के मौसम",
+        partlyCloudy: "थोड़ा बादर",
+
+        humidity: "नमी",
+        wind: "हवा",
+
+        diseaseRisk: "रोग के खतरा",
+
+        weatherUpdated: "कुछ मिनट पहिली अपडेट होइस",
+
+        farmerTip: "किसान के सलाह",
+        todayRecommendation: "आज के सलाह",
+
+        tipText:
+        "सांझ के बेरा ऊपर ले पानी देय से बचव। रात भर गीला पत्ता फंगल रोग बर अच्छा माहौल बना सकथे।",
+
+        recentActivity: "हाल के गतिविधि",
+        viewAll: "सब्बो देखव",
+
+        diagnosisComplete: "जांच पूरा होइस",
+        cropHealthReport: "फसल स्वास्थ्य रिपोर्ट",
+        printReport: "रिपोर्ट प्रिंट करव",
+
+        detectedCondition: "मिले वाला रोग",
+
+        aiConfidence: "AI के भरोसा स्तर",
+
+        symptomsTitle: "देखे लायक लच्छन",
+        symptomsSubtitle: "सामान्य दिखाई देय वाला संकेत",
+
+        recommendedResponse: "सुझाए गे कार्रवाई",
+        treatmentPlan: "इलाज के योजना",
+
+        organicRemedies: "जैविक उपाय",
+        ecoFriendly: "पर्यावरण अनुकूल तरीका",
+
+        chemicalSolutions: "रासायनिक उपाय",
+        useResponsibly: "सावधानी ले उपयोग करव",
+
+        treatmentWarning:
+        "⚠️ दवाई या कीटनाशक उपयोग करे के पहिली उत्पाद के लेबल अउ स्थानीय कृषि विशेषज्ञ के सलाह जरूर मानब।",
+
+        recommendedPriority: "जरूरी कार्रवाई",
+
+        priorityDescription:
+        "प्रभावित पौधा ला अलग रखव अउ आसपास के फसल म रोग फैले के लच्छन देखत रहव।",
+
+        viewPrevention: "बचाव योजना देखव →",
+
+        diagnosisBreakdown: "जांच के विवरण",
+
+        visualPattern: "दिखई देय वाला पैटर्न",
+        colorAnalysis: "रंग के जांच",
+        leafTexture: "पत्ता के बनावट",
+
+        disclaimer:
+        "ये प्रोटोटाइप AI आधारित शुरुआती जांच देथे। गंभीर रोग के हालत म कृषि विशेषज्ञ ले पुष्टि जरूर करव।",
+
+        longTermProtection: "लंबे समय के बचाव",
+        preventDisease: "अगले सीजन म",
+        nextSeason: "रोग ले बचव।",
+
+        preventionDescription:
+        "ये मौसमी योजना के पालन करके दोबारा रोग होय के संभावना कम करव।",
+
+        beforePlanting: "बोवाई के पहिली",
+        resistantVarieties: "रोग प्रतिरोधी किस्म चुनव",
+
+        step1:
+        "स्थानीय कृषि सलाह के हिसाब ले रोग प्रतिरोधी किस्म अउ स्वस्थ प्रमाणित बीज उपयोग करव।",
+
+        planting: "बोवाई",
+        airflow: "पौधा के बीच सही दूरी रखव",
+
+        step2:
+        "बहुत जादा पौधा एके जगह मत लगाव। सही दूरी ले पत्ता जल्दी सूखथे।",
+
+        growingSeason: "फसल के सीजन",
+        monitorLeaves: "हर हफ्ता पत्ता जांचव",
+
+        step3:
+        "पत्ता के नियमित जांच करव अउ लच्छन दिखे त फोटो अपलोड करव।",
+
+        irrigation: "सिंचाई",
+        keepFoliageDry: "पत्ता ला सूखा रखव",
+
+        step4:
+        "अइसन सिंचाई तरीका अपनाव जेमे पत्ता बेकार म गीला नइ होय।",
+
+        afterHarvest: "कटाई के बाद",
+        removeInfected: "संक्रमित पौधा हटाव",
+
+        step5:
+        "औजार ला साफ करव अउ संक्रमित पौधा के अवशेष ला सुरक्षित तरीका ले हटाव।",
+
+        simpleProcess: "सरल तरीका",
+        fromPhoto: "पत्ता के फोटो ले कार्रवाई योजना तक",
+
+        simpleDescription:
+        "AgriSense किसान मन बर AI आधारित फसल जांच ला आसान बनाथे।",
+
+        uploadStep: "01. अपलोड",
+        uploadStepDescription:
+        "प्रभावित पत्ता के साफ फोटो खींच के अपलोड करव।",
+
+        analyzeStep: "02. जांच",
+        analyzeStepDescription:
+        "AI मॉडल रंग, पैटर्न अउ लच्छन के जांच करथे।",
+
+        actionStep: "03. कार्रवाई",
+        actionStepDescription:
+        "रोग, गंभीरता, इलाज अउ बचाव के जानकारी पावव।",
+
+        footerDescription:
+        "AI आधारित फसल स्वास्थ्य निगरानी प्रणाली, जेन किसान मन ला संभावित रोग के जल्दी पहचान म मदद करथे।"
+
+    }
+
+};
+
+
+/* =========================================================
+   LANGUAGE SWITCHER
+========================================================= */
+
+const languageSelector =
+    document.getElementById("languageSelector");
+
+
+languageSelector.addEventListener("change", function() {
+
+    const language = this.value;
+
+    changeLanguage(language);
+
+});
+
+
+function changeLanguage(language) {
+
+    const dictionary = translations[language];
+
+    if (!dictionary) return;
+
+
+    document.documentElement.lang = language;
+
+
+    document.querySelectorAll("[data-i18n]")
+        .forEach(element => {
+
+            const key = element.dataset.i18n;
+
+            if (dictionary[key]) {
+
+                element.textContent = dictionary[key];
+
+            }
+
+        });
+
+
+    /*
+       Save selected language so that when the user
+       refreshes the page, their selected language remains.
+    */
+
+    localStorage.setItem(
+        "agrisense-language",
+        language
+    );
+
+
+    updateDynamicLanguage(language);
+
+}
+
+
+/* =========================================================
+   DYNAMIC TEXT
+========================================================= */
+
+function updateDynamicLanguage(language) {
+
+    const dictionary = translations[language];
+
+    /*
+       Weather risk message
+    */
+
+    const riskMessage =
+        document.getElementById("riskMessage");
+
+
+    if (language === "hi") {
+
+        riskMessage.textContent =
+            "अधिक नमी फंगल रोगों का खतरा बढ़ा सकती है।";
+
+    }
+
+    else if (language === "mr") {
+
+        riskMessage.textContent =
+            "जास्त आर्द्रतेमुळे बुरशीजन्य रोगाचा धोका वाढू शकतो.";
+
+    }
+
+    else if (language === "cg") {
+
+        riskMessage.textContent =
+            "जादा नमी ले फंगल रोग के खतरा बढ़ सकथे।";
+
+    }
+
+    else {
+
+        riskMessage.textContent =
+            "High humidity may increase fungal disease risk.";
+
+    }
+
+
+    /*
+       Processing text
+    */
+
+    const processingText =
+        document.getElementById("processingText");
+
+
+    if (language === "hi") {
+
+        processingText.textContent =
+            "पत्तियों के पैटर्न की जांच हो रही है...";
+
+    }
+
+    else if (language === "mr") {
+
+        processingText.textContent =
+            "पानांच्या नमुन्यांचे विश्लेषण सुरू आहे...";
+
+    }
+
+    else if (language === "cg") {
+
+        processingText.textContent =
+            "पत्ता के पैटर्न के जांच होवत हे...";
+
+    }
+
+    else {
+
+        processingText.textContent =
+            "Examining leaf patterns...";
+
+    }
+
+}
+
+
+/* =========================================================
+   LOAD SAVED LANGUAGE
+========================================================= */
+
+const savedLanguage =
+    localStorage.getItem("agrisense-language") || "en";
+
+
+languageSelector.value = savedLanguage;
+
+changeLanguage(savedLanguage);
+
+
+/* =========================================================
+   DATE
+========================================================= */
+
+document.getElementById("currentDate").textContent =
+    new Date().toLocaleDateString("en-IN", {
+
+        weekday: "long",
+        day: "numeric",
+        month: "long",
+        year: "numeric"
+
+    });
+
+
+/* =========================================================
+   FILE UPLOAD
+========================================================= */
+
+const uploadZone =
+    document.getElementById("uploadZone");
+
+const fileInput =
+    document.getElementById("fileInput");
+
+const browseBtn =
+    document.getElementById("browseBtn");
+
+const diagnoseBtn =
+    document.getElementById("diagnoseBtn");
+
+const uploadContent =
+    document.getElementById("uploadContent");
+
+const previewContent =
+    document.getElementById("previewContent");
+
+const previewImage =
+    document.getElementById("previewImage");
+
+const fileName =
+    document.getElementById("fileName");
+
+const removeImage =
+    document.getElementById("removeImage");
+
+const processing =
+    document.getElementById("processing");
+
+const processingBar =
+    document.getElementById("processingBar");
+
+const processingText =
+    document.getElementById("processingText");
+
+const results =
+    document.getElementById("results");
+
+
+let selectedFile = null;
+
+let selectedExample = null;
+
+
+/* =========================================================
+   FILE PICKER
+========================================================= */
+
+browseBtn.addEventListener("click", function(event) {
+
+    event.stopPropagation();
+
+    fileInput.click();
+
+});
+
+
+uploadZone.addEventListener("click", function() {
+
+    if (!selectedFile && !selectedExample) {
+
+        fileInput.click();
+
+    }
+
+});
+
+
+fileInput.addEventListener("change", function() {
+
+    if (this.files.length > 0) {
+
+        handleFile(this.files[0]);
+
+    }
+
+});
+
+
+/* =========================================================
+   DRAG & DROP
+========================================================= */
+
+["dragenter", "dragover"].forEach(eventName => {
+
+    uploadZone.addEventListener(eventName, function(event) {
+
+        event.preventDefault();
+
+        uploadZone.classList.add("dragover");
+
+    });
+
+});
+
+
+["dragleave", "drop"].forEach(eventName => {
+
+    uploadZone.addEventListener(eventName, function(event) {
+
+        event.preventDefault();
+
+        uploadZone.classList.remove("dragover");
+
+    });
+
+});
+
+
+uploadZone.addEventListener("drop", function(event) {
+
+    const files =
+        event.dataTransfer.files;
+
+    if (files.length > 0) {
+
+        handleFile(files[0]);
+
+    }
+
+});
+
+
+/* =========================================================
+   HANDLE FILE
+========================================================= */
+
+function handleFile(file) {
+
+    if (!file.type.startsWith("image/")) {
+
+        alert("Please select a valid image.");
+
+        return;
+
+    }
+
+
+    if (file.size > 10 * 1024 * 1024) {
+
+        alert("Image must be less than 10 MB.");
+
+        return;
+
+    }
+
+
+    selectedFile = file;
+
+    selectedExample = null;
+
+
+    const reader =
+        new FileReader();
+
+
+    reader.onload = function(event) {
+
+        previewImage.src =
+            event.target.result;
+
+        fileName.textContent =
+            file.name;
+
+        uploadContent.classList.add("hidden");
+
+        previewContent.classList.remove("hidden");
+
+        enableDiagnose();
+
+    };
+
+
+    reader.readAsDataURL(file);
+
+}
+
+
+/* =========================================================
+   ENABLE DIAGNOSIS
+========================================================= */
+
+function enableDiagnose() {
+
+    diagnoseBtn.disabled = false;
+
+    diagnoseBtn.classList.remove(
+        "bg-slate-200",
+        "text-slate-400",
+        "cursor-not-allowed"
+    );
+
+    diagnoseBtn.classList.add(
+        "bg-emerald-700",
+        "hover:bg-emerald-800",
+        "text-white",
+        "shadow-lg"
+    );
+
+}
+
+
+/* =========================================================
+   REMOVE IMAGE
+========================================================= */
+
+removeImage.addEventListener("click", function(event) {
+
+    event.stopPropagation();
+
+    resetUpload();
+
+});
+
+
+function resetUpload() {
+
+    selectedFile = null;
+
+    selectedExample = null;
+
+    fileInput.value = "";
+
+    previewImage.src = "";
+
+    uploadContent.classList.remove("hidden");
+
+    previewContent.classList.add("hidden");
+
+    diagnoseBtn.disabled = true;
+
+    diagnoseBtn.classList.remove(
+        "bg-emerald-700",
+        "hover:bg-emerald-800",
+        "text-white",
+        "shadow-lg"
+    );
+
+    diagnoseBtn.classList.add(
+        "bg-slate-200",
+        "text-slate-400",
+        "cursor-not-allowed"
+    );
+
+}
+
+
+/* =========================================================
+   EXAMPLE IMAGES
+========================================================= */
+
+document.querySelectorAll(".example-img")
+.forEach(example => {
+
+    example.addEventListener("click", function() {
+
+        selectedExample =
+            this.dataset.disease;
+
+        selectedFile = null;
+
+
+        const image =
+            this.querySelector("img");
+
+
+        previewImage.src =
+            image.src;
+
+
+        fileName.textContent =
+            "Example: " +
+            selectedExample;
+
+
+        uploadContent.classList.add("hidden");
+
+        previewContent.classList.remove("hidden");
+
+        enableDiagnose();
+
+
+        document.getElementById("diagnosis")
+            .scrollIntoView({
+
+                behavior: "smooth",
+                block: "center"
+
+            });
+
+    });
+
+});
+
+
+/* =========================================================
+   DIAGNOSIS BUTTON
+========================================================= */
+
+diagnoseBtn.addEventListener("click", function() {
+
+    if (!selectedFile && !selectedExample) {
+
+        alert("Please upload an image first.");
+
+        return;
+
+    }
+
+    startDiagnosis();
+
+});
+
+
+/* =========================================================
+   SIMULATED AI
+========================================================= */
+
+function startDiagnosis() {
+
+    diagnoseBtn.disabled = true;
+
+    processing.classList.remove("hidden");
+
+    results.classList.add("hidden");
+
+
+    let progress = 0;
+
+
+    const interval =
+        setInterval(() => {
+
+            progress += 10;
+
+            processingBar.style.width =
+                progress + "%";
+
+
+            if (progress >= 100) {
+
+                clearInterval(interval);
+
+            }
+
+        }, 200);
+
+
+    /*
+       Exactly 2 seconds simulated delay
+    */
+
+    setTimeout(() => {
+
+        processing.classList.add("hidden");
+
+        diagnoseBtn.disabled = false;
+
+        diagnoseImage();
+
+    }, 2000);
+
+}
+
+
+/* =========================================================
+   MOCK DIAGNOSIS
+========================================================= */
+
+function diagnoseImage() {
+
+    let diagnosis;
+
+
+    if (selectedExample === "Healthy Leaf") {
+
+        diagnosis = {
+
+            name: "Healthy Crop",
+            scientific: "No major visual disease detected",
+            confidence: 97,
+            severity: "Low",
+            icon: "🌿",
+
+            symptoms: [
+                "Uniform green leaf color",
+                "No visible fungal lesions",
+                "Normal leaf texture",
+                "No significant yellowing"
+            ],
+
+            organic: [
+                "Continue regular crop monitoring",
+                "Maintain balanced soil nutrition",
+                "Use clean irrigation water",
+                "Remove damaged leaves promptly"
+            ],
+
+            chemical: [
+                "No chemical treatment recommended",
+                "Use pesticides only if a confirmed issue appears",
+                "Follow local crop protection guidance"
+            ],
+
+            priority: "Continue Routine Monitoring"
+
+        };
+
+    }
+
+
+    else if (selectedExample === "Potato Early Blight") {
+
+        diagnosis = {
+
+            name: "Potato Early Blight",
+            scientific: "Alternaria solani",
+            confidence: 89,
+            severity: "Medium",
+            icon: "🥔",
+
+            symptoms: [
+                "Dark circular spots on older leaves",
+                "Concentric ring patterns",
+                "Yellowing around lesions",
+                "Premature leaf drop"
+            ],
+
+            organic: [
+                "Remove severely infected leaves",
+                "Improve plant spacing and airflow",
+                "Avoid unnecessary leaf wetness",
+                "Maintain balanced plant nutrition"
+            ],
+
+            chemical: [
+                "Use a locally approved fungicide if confirmed",
+                "Follow label dosage and application interval",
+                "Rotate fungicide groups to reduce resistance risk"
+            ],
+
+            priority: "Monitor Within 48 Hours"
+
+        };
+
+    }
+
+
+    else if (selectedExample === "Leaf Spot Disease") {
+
+        diagnosis = {
+
+            name: "Leaf Spot Disease",
+            scientific: "Fungal/Bacterial leaf spot complex",
+            confidence: 86,
+            severity: "Medium",
+            icon: "🍃",
+
+            symptoms: [
+                "Small brown or dark leaf spots",
+                "Yellow halos around lesions",
+                "Spots increasing in size",
+                "Premature leaf deterioration"
+            ],
+
+            organic: [
+                "Remove heavily affected leaves",
+                "Improve airflow around plants",
+                "Avoid overhead irrigation",
+                "Sanitize garden tools"
+            ],
+
+            chemical: [
+                "Use crop-approved fungicide where appropriate",
+                "Apply only according to product label",
+                "Consult local agricultural experts for confirmation"
+            ],
+
+            priority: "Monitor Within 48–72 Hours"
+
+        };
+
+    }
+
+
+    else {
+
+        diagnosis = {
+
+            name: "Tomato Late Blight",
+            scientific: "Phytophthora infestans",
+            confidence: 94,
+            severity: "High",
+            icon: "🍅",
+
+            symptoms: [
+                "Irregular dark brown lesions",
+                "Water-soaked appearance on leaf tissue",
+                "Yellowing around affected areas",
+                "Rapid spread during humid weather",
+                "Dark lesions on stems may appear",
+                "Fruit may develop firm brown patches"
+            ],
+
+            organic: [
+                "Remove severely infected tissue",
+                "Improve airflow around plants",
+                "Avoid overhead irrigation",
+                "Keep foliage dry when possible",
+                "Sanitize tools after handling infected plants"
+            ],
+
+            chemical: [
+                "Use only locally approved late-blight products",
+                "Apply according to the product label",
+                "Follow crop-specific pre-harvest intervals",
+                "Rotate fungicide modes of action when recommended"
+            ],
+
+            priority: "Act Within 24–48 Hours"
+
+        };
+
+    }
+
+
+    showDiagnosis(diagnosis);
+
+}
+
+
+/* =========================================================
+   SHOW DIAGNOSIS
+========================================================= */
+
+function showDiagnosis(data) {
+
+    results.classList.remove("hidden");
+
+    results.classList.add("result-appear");
+
+
+    document.getElementById("resultIcon")
+        .textContent = data.icon;
+
+
+    document.getElementById("diseaseName")
+        .textContent = data.name;
+
+
+    document.getElementById("diseaseScientific")
+        .textContent = data.scientific;
+
+
+    document.getElementById("confidenceText")
+        .textContent =
+        data.confidence + "%";
+
+
+    document.getElementById("confidenceBar")
+        .style.width =
+        data.confidence + "%";
+
+
+    document.getElementById("priorityText")
+        .textContent =
+        data.priority;
+
+
+    /* Severity */
+
+    const badge =
+        document.getElementById("severityBadge");
+
+
+    badge.textContent =
+        data.severity.toUpperCase() +
+        " SEVERITY";
+
+
+    badge.className =
+        "px-3 py-1.5 rounded-full text-xs font-bold";
+
+
+    if (data.severity === "High") {
+
+        badge.classList.add(
+            "bg-red-100",
+            "text-red-700"
+        );
+
+    }
+
+    else if (data.severity === "Medium") {
+
+        badge.classList.add(
+            "bg-amber-100",
+            "text-amber-700"
+        );
+
+    }
+
+    else {
+
+        badge.classList.add(
+            "bg-emerald-100",
+            "text-emerald-700"
+        );
+
+    }
+
+
+    /* Symptoms */
+
+    const symptoms =
+        document.getElementById("symptomsList");
+
+    symptoms.innerHTML = "";
+
+
+    data.symptoms.forEach(itemText => {
+
+        const item =
+            document.createElement("div");
+
+
+        item.className =
+            "flex items-start gap-3 p-3 rounded-xl bg-slate-50";
+
+
+        item.innerHTML = `
+
+            <span class="w-6 h-6 shrink-0 rounded-full
+                         bg-amber-100 text-amber-700
+                         flex items-center justify-center
+                         text-xs font-bold">
+                ✓
+            </span>
+
+            <span class="text-sm text-slate-600 leading-5">
+                ${itemText}
+            </span>
+
+        `;
+
+
+        symptoms.appendChild(item);
+
+    });
+
+
+    /* Organic */
+
+    const organic =
+        document.getElementById("organicList");
+
+    organic.innerHTML = "";
+
+
+    data.organic.forEach(itemText => {
+
+        const item =
+            document.createElement("li");
+
+
+        item.className =
+            "flex gap-2 items-start";
+
+
+        item.innerHTML = `
+
+            <span class="text-emerald-600 font-bold">
+                ✓
+            </span>
+
+            <span>
+                ${itemText}
+            </span>
+
+        `;
+
+
+        organic.appendChild(item);
+
+    });
+
+
+    /* Chemical */
+
+    const chemical =
+        document.getElementById("chemicalList");
+
+    chemical.innerHTML = "";
+
+
+    data.chemical.forEach(itemText => {
+
+        const item =
+            document.createElement("li");
+
+
+        item.className =
+            "flex gap-2 items-start";
+
+
+        item.innerHTML = `
+
+            <span class="text-orange-600 font-bold">
+                ✓
+            </span>
+
+            <span>
+                ${itemText}
+            </span>
+
+        `;
+
+
+        chemical.appendChild(item);
+
+    });
+
+
+    /* Stats */
+
+    let total =
+        parseInt(
+            document.getElementById("totalScans")
+            .textContent
+        );
+
+
+    document.getElementById("totalScans")
+        .textContent =
+        total + 1; 
+
+
+    if (data.name === "Healthy Crop") {
+
+        let healthy =
+            parseInt(
+                document.getElementById("healthyScans")
+                .textContent
+            );
+
+
+        document.getElementById("healthyScans")
+            .textContent =
+            healthy + 1;
+
+    }
+
+    else {
+
+        let alerts =
+            parseInt(
+                document.getElementById("alertScans")
+                .textContent
+            );
+
+
+        document.getElementById("alertScans")
+            .textContent =
+            String(alerts + 1)
+            .padStart(2, "0");
+
+    }
+
+
+    /* Scroll */
+
+    setTimeout(() => {
+
+        results.scrollIntoView({
+
+            behavior: "smooth",
+            block: "start"
+
+        });
+
+    }, 200);
+
+}
+
+
+/* =========================================================
+   WEATHER RISK
+========================================================= */
+
+function updateWeatherRisk() {
+
+    const temperature = 27;
+
+    const humidity = 78;
+
+
+    let risk = "MODERATE";
+
+
+    if (humidity >= 80 &&
+        temperature >= 20) {
+
+        risk = "HIGH";
+
+    }
+
+
+    const badge =
+        document.getElementById("riskBadge");
+
+
+    badge.textContent =
+        risk;
+
+
+}
+
+
+updateWeatherRisk();
+
+
+</script>
+
+</body>
+</html>
+```
