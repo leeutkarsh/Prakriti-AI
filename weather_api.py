@@ -19,7 +19,7 @@ def get_weather_forecast(latitude, longitude):
     params = {
         "latitude": latitude,
         "longitude": longitude,
-        "forecast_days": 1,
+        "forecast_days": 16,
         "hourly": [
             "temperature_2m",
             "relative_humidity_2m",
