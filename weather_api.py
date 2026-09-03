@@ -20,12 +20,49 @@ def get_weather_forecast(latitude, longitude):
         "latitude": latitude,
         "longitude": longitude,
         "forecast_days": 16,
+
         "hourly": [
+            # Current weather
             "temperature_2m",
             "relative_humidity_2m",
-            "wind_speed_10m"
+            "dew_point_2m",
+            "apparent_temperature",
+            "precipitation",
+            "cloud_cover",
+
+            # Wind
+            "wind_speed_10m",
+            "wind_direction_10m",
+            "wind_gusts_10m",
+
+            # Visibility
+            "visibility",
+
+            # Soil
+            "soil_temperature_0cm",
+            "soil_moisture_0_to_1cm",
+
+            # Agriculture / derived weather
+            "vapour_pressure_deficit",
+            "et0_fao_evapotranspiration",
+            "evapotranspiration",
+            "leaf_wetness_probability",
+
+            # Solar
+            "sunshine_duration",
+            "shortwave_radiation",
+            "uv_index",
+
+            # Weather condition
+            "weather_code"
         ],
-        "timezone": "auto"
+
+        "timezone": "auto",
+
+        # Units
+        "temperature_unit": "celsius",
+        "wind_speed_unit": "kmh",
+        "precipitation_unit": "mm"
     }
 
     response = requests.get(
@@ -40,7 +77,7 @@ def get_weather_forecast(latitude, longitude):
 
 
 if __name__ == "__main__":
-    # Example: City(Bhopal)
+    # Example: Bhopal
     latitude = 23.2599
     longitude = 77.4126
 
