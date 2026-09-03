@@ -1,5 +1,7 @@
 # Open-Meteo Data Requirements
 
+**note: You may not find some of the data mentioned here so just do not consider them simply give only data that are given in website**
+
 ## Location
 
 ```text
