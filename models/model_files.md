@@ -12,3 +12,6 @@
 [pest detection model](https://www.dropbox.com/scl/fi/51kya4rcb31bxy3ulph32/best1.pt?rlkey=6mfetnh2zquacmgygroqoxyax&st=tovlr53t&dl=0)
 - [pesticide csv file 1](https://www.dropbox.com/scl/fi/e3goendi9ju9qlwu1cwvs/Pesticides.csv?rlkey=cj8sc89enzzcmazpg34nngmni&st=b1notqdz&dl=0)
 - [pesticide csv file 2](https://www.dropbox.com/scl/fi/qq9kn6kp000hoe71qe76j/pests_pesticides.csv?rlkey=86y3ntuyjped1c5616aunfihu&st=67y1zh03&dl=0)
+
+[Risk Detection Model](https://www.dropbox.com/scl/fi/cjstrpksf5b47qz6o3f6f/xgboost_regressor_model.json?rlkey=0s7wtdlzdwr4ff9m3152nku7y&st=pk0w9trd&dl=0)
+- [Preprocessor file](https://www.dropbox.com/scl/fi/027ij2ts58yi08q0arfvh/ordinal_encoder_preprocessor.joblib?rlkey=o12pnhratwgln9b2l2lv7jeny&st=8t52ihqa&dl=0)
