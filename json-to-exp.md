@@ -1,504 +1,403 @@
-[JSON Disease & Pest Explanation Function
+# JSON Disease & Pest Explanation Function
 
-1. Objective
+## 1. Goal
 
-Create a Python function that accepts:
+Create a Python function that takes:
 
-1. A JSON-format text/string containing information about both diseases and pests.
-2. A parameter specifying what the user wants to analyze:
-   - ""disease""
-   - ""pest""
+* A JSON string containing disease and pest information.
+* A `detection_type` parameter: `"disease"` or `"pest"`.
 
-The function should then extract and explain only the information relevant to the selected category.
+The function should:
 
-The JSON may contain information about both diseases and pests, but the user will select which type they want to detect/analyze.
+1. Select only the requested type.
+2. Explain each piece of information individually.
+3. Return the explanations as JSON so the frontend can easily display them.
+4. Work with new fields without requiring constant code changes.
 
 ---
 
-2. Expected Function
+## 2. Function
 
-Create a function similar to:
-
+```python
 def explain_detection(json_text, detection_type):
     ...
+```
 
-Parameters
+### Example
 
-"json_text"
+```python
+result = explain_detection(json_text, "disease")
+```
 
-A JSON-format string containing the complete detection/forecast information.
+or:
 
-Example:
+```python
+result = explain_detection(json_text, "pest")
+```
 
-json_text = '''
+---
+
+## 3. Input Example
+
+```json
 {
     "disease": {
         "name": "Rice Blast",
         "confidence": 0.94,
         "severity": "High",
-        "symptoms": ["Brown lesions", "Leaf damage"],
-        "weather_conditions": {
+        "risk": 0.82,
+        "symptoms": [
+            "Brown lesions",
+            "Leaf damage"
+        ],
+        "weather": {
             "temperature": 28,
             "humidity": 85
-        },
-        "risk": 0.82
+        }
     },
     "pest": {
         "name": "Rice Stem Borer",
         "confidence": 0.89,
-        "severity": "Medium",
-        "symptoms": ["Dead hearts", "White ears"],
-        "risk": 0.64
+        "severity": "Medium"
     }
 }
-'''
-
-"detection_type"
-
-Determines which section of the JSON should be explained.
-
-Allowed values:
-
-"disease"
-"pest"
-
-Example:
-
-explain_detection(json_text, "disease")
-
-or:
-
-explain_detection(json_text, "pest")
+```
 
 ---
 
-3. Core Requirement
+## 4. Important Requirement
 
-The function must not explain irrelevant information.
+The explanation should be generated **individually for every field**.
 
-If:
+Instead of returning one large explanation like:
 
+```text
+Rice Blast was detected with 94% confidence and high severity...
+```
+
+the function should return structured JSON like:
+
+```json
+{
+    "name": {
+        "value": "Rice Blast",
+        "explanation": "Rice Blast is the detected disease affecting the crop."
+    },
+    "confidence": {
+        "value": 0.94,
+        "explanation": "The model is 94% confident that the detected disease is Rice Blast."
+    },
+    "severity": {
+        "value": "High",
+        "explanation": "High severity means the disease may significantly affect the crop if not controlled."
+    },
+    "risk": {
+        "value": 0.82,
+        "explanation": "The current estimated disease risk is 82%."
+    }
+}
+```
+
+This makes the output much easier for the frontend to use.
+
+For example, the frontend can display:
+
+```text
+Disease
+Rice Blast
+↓
+Explanation
+Rice Blast is the detected disease...
+```
+
+---
+
+## 5. Disease / Pest Selection
+
+When:
+
+```python
 detection_type = "disease"
+```
 
-Then explain:
+only the `disease` object should be processed.
 
-- Disease name
-- Disease confidence
-- Disease severity
-- Disease symptoms
-- Disease risk
-- Disease-related weather conditions
-- Disease-related forecast information
-- Disease-related recommendations
-- Any other disease-specific information present in the JSON
+When:
 
-Ignore pest-related information.
-
----
-
-If:
-
+```python
 detection_type = "pest"
+```
 
-Then explain:
+only the `pest` object should be processed.
 
-- Pest name
-- Pest confidence
-- Pest severity
-- Pest symptoms
-- Pest risk
-- Pest-related weather conditions
-- Pest-related forecast information
-- Pest-related recommendations
-- Any other pest-specific information present in the JSON
-
-Ignore disease-related information.
+The other category should be ignored.
 
 ---
 
-4. Important Requirement — Dynamic JSON
+## 6. Dynamic Fields
 
-Do not hard-code only the example fields.
+Do not hard-code only fields such as:
 
-The JSON structure may contain additional information in the future.
+```text
+name
+confidence
+severity
+risk
+```
 
-For example, the JSON could contain:
+The JSON may later contain:
 
-{
-    "disease": {
-        "name": "Rice Blast",
-        "confidence": 0.94,
-        "severity": "High",
-        "cause": "Fungal infection",
-        "symptoms": [],
-        "spread_rate": "Fast",
-        "weather_conditions": {},
-        "forecast": {},
-        "recommendations": [],
-        "treatment": {},
-        "additional_information": {}
-    }
-}
+```text
+cause
+spread_rate
+forecast
+treatment
+recommendations
+weather
+rainfall
+temperature
+humidity
+```
 
-The function should be able to process these fields without needing to manually modify the function every time a new field is added.
-
-The explanation should therefore be generated dynamically from the JSON data.
-
----
-
-5. Explanation Requirements
-
-The output should be understandable to a normal user/farmer.
-
-Do not simply return the raw JSON.
-
-For example, instead of:
-
-confidence: 0.94
-severity: High
-risk: 0.82
-
-The output should explain:
-
-The detected disease is Rice Blast with a confidence of 94%.
-The current severity is classified as High, which indicates that the disease may
-cause significant damage if it continues to spread.
-
-The estimated risk level is 82%, indicating a relatively high possibility of
-disease development or spread under the current conditions.
-
-The exact wording can be generated dynamically.
+The function should dynamically process any new fields.
 
 ---
 
-6. Output Should Explain Every Relevant Field
+## 7. Nested Information
 
-If the selected category contains:
-
-{
-    "name": "Rice Blast",
-    "confidence": 0.94,
-    "severity": "High",
-    "temperature": 28,
-    "humidity": 85
-}
-
-The function should explain all of them.
-
-For example:
-
-Disease: Rice Blast
-
-Detection Confidence:
-The model is 94% confident that the detected disease is Rice Blast.
-
-Severity:
-The disease severity is classified as High, indicating that the disease
-may currently pose a significant threat to the crop.
-
-Temperature:
-The recorded temperature is 28°C.
-
-Humidity:
-The humidity is 85%, which may create conditions favorable for disease
-development depending on the disease.
-
----
-
-7. Handling Nested JSON
-
-The function must also support nested objects.
+Nested objects should also receive individual explanations.
 
 Example:
 
+```json
 {
-    "disease": {
-        "name": "Rice Blast",
-        "risk": {
-            "current": 0.82,
-            "next_7_days": 0.91
+    "weather": {
+        "temperature": 28,
+        "humidity": 85
+    }
+}
+```
+
+should become something like:
+
+```json
+{
+    "weather": {
+        "temperature": {
+            "value": 28,
+            "explanation": "The recorded temperature is 28°C."
         },
-        "weather": {
-            "temperature": 28,
-            "humidity": 85,
-            "rainfall": 12
+        "humidity": {
+            "value": 85,
+            "explanation": "The recorded humidity is 85%."
         }
     }
 }
-
-The function should recursively process the nested information.
-
-Example explanation:
-
-Disease: Rice Blast
-
-Current Risk:
-The current estimated risk is 82%.
-
-7-Day Risk:
-The estimated risk for the next 7 days is 91%.
-
-Weather Conditions:
-Temperature: 28°C
-Humidity: 85%
-Rainfall: 12 mm
+```
 
 ---
 
-8. Handling Arrays / Lists
+## 8. Lists
 
-The function must also handle lists.
+Lists should also be handled.
 
 Example:
 
+```json
 {
-    "disease": {
-        "symptoms": [
-            "Brown spots on leaves",
-            "Leaf lesions",
-            "Premature drying"
-        ]
+    "symptoms": [
+        "Brown lesions",
+        "Leaf damage"
+    ]
+}
+```
+
+Output:
+
+```json
+{
+    "symptoms": [
+        {
+            "value": "Brown lesions",
+            "explanation": "Brown lesions are a visible symptom of the detected disease."
+        },
+        {
+            "value": "Leaf damage",
+            "explanation": "Leaf damage indicates that the crop is being affected."
+        }
+    ]
+}
+```
+
+---
+
+## 9. Missing Values
+
+The function must safely handle:
+
+```json
+null
+```
+
+or Python:
+
+```python
+None
+```
+
+It should not crash.
+
+Example:
+
+```json
+{
+    "treatment": {
+        "value": null,
+        "explanation": "Treatment information is currently unavailable."
     }
 }
-
-The output should explain them naturally:
-
-Observed Symptoms:
-
-1. Brown spots on leaves
-2. Leaf lesions
-3. Premature drying
-
-The same should work for lists of recommendations, treatments, affected crops, weather conditions, etc.
+```
 
 ---
 
-9. Missing / None Values
+## 10. Error Handling
 
-The JSON may contain values such as:
+### Invalid detection type
 
+```python
+explain_detection(json_text, "weather")
+```
+
+should return:
+
+```json
 {
-    "disease": {
-        "name": "Rice Blast",
-        "confidence": null,
-        "severity": null,
-        "forecast": null
+    "error": "Invalid detection type. Use 'disease' or 'pest'."
+}
+```
+
+### Invalid JSON
+
+If the input cannot be parsed:
+
+```json
+{
+    "error": "Invalid JSON data."
+}
+```
+
+---
+
+## 11. Recommended Output Structure
+
+The final returned JSON should follow this general structure:
+
+```json
+{
+    "type": "disease",
+    "data": {
+        "name": {
+            "value": "Rice Blast",
+            "explanation": "Rice Blast is the detected disease affecting the crop."
+        },
+        "confidence": {
+            "value": 0.94,
+            "explanation": "The model is 94% confident in this detection."
+        },
+        "severity": {
+            "value": "High",
+            "explanation": "The detected disease currently has a high severity level."
+        }
     }
 }
+```
 
-The function should not crash.
-
-It should either:
-
-- Skip unavailable fields, or
-- Clearly state that the information is unavailable.
-
-Example:
-
-Detection Confidence:
-Confidence information is currently unavailable.
-
-Forecast:
-No forecast information is currently available.
-
-Do not produce errors such as:
-
-NoneType object...
+This structure should be consistent for both disease and pest.
 
 ---
 
-10. Invalid Detection Type
+## 12. Processing Flow
 
-If the user provides:
-
-explain_detection(json_text, "something")
-
-The function should return a clear error.
-
-Example:
-
-Invalid detection type. Please select either 'disease' or 'pest'.
-
----
-
-11. Invalid JSON
-
-If the provided text is not valid JSON, the function should handle the error gracefully.
-
-Example:
-
-Unable to process the provided data because the input is not valid JSON.
-
-The application should not crash.
-
----
-
-12. Suggested Processing Flow
-
-The function should roughly follow this architecture:
-
-JSON text
-   ↓
+```text
+JSON Input
+    ↓
 Parse JSON
-   ↓
-Validate detection_type
-   ↓
-Select disease OR pest section
-   ↓
-Extract selected category
-   ↓
-Recursively process nested data
-   ↓
-Explain each relevant field
-   ↓
-Return human-readable explanation
+    ↓
+Check detection_type
+    ↓
+Select Disease / Pest
+    ↓
+Process every field
+    ↓
+Process nested objects and lists
+    ↓
+Generate individual explanations
+    ↓
+Return structured JSON
+    ↓
+Frontend displays each field separately
+```
 
 ---
 
-13. Important Separation of Responsibilities
+## 13. LLM Integration
 
-The function should focus on:
+The explanation generation can later use an LLM.
 
-«Taking structured JSON data and converting it into an understandable explanation.»
+The Python function can:
 
-It should not perform disease or pest detection itself.
+```text
+Receive JSON
+    ↓
+Select disease/pest
+    ↓
+Send each relevant field to LLM
+    ↓
+Generate explanation for each field
+    ↓
+Build final JSON
+```
 
-Detection will already have happened elsewhere.
+The LLM should return structured data, not one giant paragraph.
 
 For example:
 
-YOLO / ML Model
-      ↓
-Detection Result
-      ↓
-Forecast / Risk Processing
-      ↓
-JSON
-      ↓
-explain_detection()
-      ↓
-Human-readable explanation
-      ↓
-Frontend / Farmer
+```json
+{
+    "name": {
+        "value": "Rice Blast",
+        "explanation": "Rice Blast is a fungal disease that affects rice plants."
+    },
+    "confidence": {
+        "value": 0.94,
+        "explanation": "The detection model has a 94% confidence level."
+    }
+}
+```
 
 ---
 
-14. AI API Integration
+## 14. Main Objective
 
-The function should ideally be designed so that its output can later be passed to an LLM/AI API.
+The function should essentially work like:
 
-For example:
+```text
+Input JSON
+    ↓
+Select Disease / Pest
+    ↓
+Explain EACH field individually
+    ↓
+Return JSON
+```
 
-JSON
- ↓
-Filter disease/pest information
- ↓
-Prepare structured information
- ↓
-Send relevant information to AI
- ↓
-AI generates simple explanation
- ↓
-Return explanation to frontend
+The frontend can then easily access:
 
-The AI should only receive the selected category's information.
+```javascript
+data.name.explanation
+data.confidence.explanation
+data.severity.explanation
+data.risk.explanation
+```
 
-For example, if the user selects:
-
-disease
-
-Do not unnecessarily send the complete pest data to the AI.
-
-This reduces irrelevant information and makes the explanation more focused.
-
----
-
-15. Example Usage
-
-Disease
-
-result = explain_detection(json_text, "disease")
-
-print(result)
-
-Expected concept:
-
-Disease Analysis
-
-Rice Blast was detected with 94% confidence.
-
-Severity:
-High
-
-Risk:
-82%
-
-Symptoms:
-- Brown lesions
-- Leaf damage
-
-Weather:
-- Temperature: 28°C
-- Humidity: 85%
-
-Overall:
-The current conditions indicate a relatively high risk of Rice Blast
-development and spread.
-
----
-
-Pest
-
-result = explain_detection(json_text, "pest")
-
-print(result)
-
-Expected concept:
-
-Pest Analysis
-
-Rice Stem Borer was detected with 89% confidence.
-
-Severity:
-Medium
-
-Risk:
-64%
-
-Symptoms:
-- Dead hearts
-- White ears
-
-Overall:
-The detected pest presents a moderate risk to the crop.
-
----
-
-16. Final Requirements Checklist
-
-The implementation must:
-
-- [ ] Accept JSON-format text/string.
-- [ ] Accept ""disease"" or ""pest"" as a second parameter.
-- [ ] Select only the requested category.
-- [ ] Ignore irrelevant disease/pest information.
-- [ ] Explain every relevant field.
-- [ ] Support nested JSON objects.
-- [ ] Support lists/arrays.
-- [ ] Handle "null" / "None" values.
-- [ ] Handle invalid JSON safely.
-- [ ] Handle invalid "detection_type".
-- [ ] Work with additional fields without requiring constant code changes.
-- [ ] Return a human-readable explanation.
-- [ ] Keep the function independent from the actual ML detection model.
-- [ ] Structure the implementation so an LLM API can optionally be integrated later.
-
-Main Goal
-
-Build a generic JSON-to-explanation function that can take the output generated by our disease/pest detection and forecasting pipeline and convert it into a clear explanation based on what the user selected:
-
-"disease" → Disease information only
-
-"pest" → Pest information only
-
-The function should be dynamic rather than hard-coded, because the JSON structure may evolve as more information is added to the project.](https://hackmd.io/@leeutkarsh/ByxE70fqOGe)
+This keeps the backend responsible for generating explanations while the frontend only needs to display them.
