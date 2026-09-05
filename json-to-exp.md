@@ -1,5 +1,3 @@
-Absolutely — here’s a clean Markdown task specification you can give directly to your teammate.
-
 JSON Disease & Pest Explanation Function
 
 1. Objective
