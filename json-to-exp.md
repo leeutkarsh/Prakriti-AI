@@ -1,4 +1,4 @@
-JSON Disease & Pest Explanation Function
+[JSON Disease & Pest Explanation Function
 
 1. Objective
 
@@ -501,4 +501,4 @@ Build a generic JSON-to-explanation function that can take the output generated 
 
 "pest" → Pest information only
 
-The function should be dynamic rather than hard-coded, because the JSON structure may evolve as more information is added to the project.
+The function should be dynamic rather than hard-coded, because the JSON structure may evolve as more information is added to the project.](https://hackmd.io/@leeutkarsh/ByxE70fqOGe)
