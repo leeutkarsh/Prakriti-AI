@@ -39,6 +39,13 @@ Keep the UI modular with reusable components. Keep a clearly identifiable form/i
 - Preprocessing/postprocessing
 - Database/backend logic
 
+## Existing Starting UI
+
+- There is already an existing starting/input UI with fields such as file upload, soil type, etc.
+- Reuse/attach that existing UI instead of rebuilding it from scratch.
+- Include all files/assets/components needed for that existing starting UI in the final handoff.
+- Make sure the final project runs with that starting UI included and keeps its existing inputs/functionality intact.
+
 ## Deliver
 - Complete React + TypeScript source
 - `package.json`
