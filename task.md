@@ -17,22 +17,8 @@ Use meaningful names, not indexes:
 - `observedSymptoms`
 - Add other fields with clear semantic names where needed.
 
-Keep the values themselves meaningful, e.g. `"Tomato"`, `"Leaf"`, `"Summer"` — do NOT expose model/preprocessing indexes such as `0`, `1`, `2` as the frontend meaning.
-
 ## Results
 Render everything dynamically from a result object. Example shape:
-
-```ts
-{
-  diseaseName: "Early Blight",
-  confidence: 94.2,
-  severity: "Moderate",
-  symptoms: ["Yellow spots", "Dark lesions"],
-  recommendation: "Example recommendation",
-  resultImage: "mock-image-url"
-}
-```
-
 Do not hard-code prediction values directly into JSX.
 
 ## Image handling
