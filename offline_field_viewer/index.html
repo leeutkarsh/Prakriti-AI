@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Prakriti-AI • 3D Field</title>
+
+<link rel="stylesheet" href="style.css">
+
+<script type="module" src="assets/model-viewer.min.js"></script>
+</head>
+
+<body>
+
+<div class="app">
+
+    <model-viewer
+        id="fieldViewer"
+        src="assets/fused.glb"
+        alt="3D reconstructed agricultural field"
+
+        camera-controls
+        touch-action="pan-y"
+        interaction-prompt="none"
+
+        loading="eager"
+        reveal="auto"
+
+        shadow-intensity="0.65"
+
+        camera-orbit="1.271deg 180.000deg 106.6765m"
+        camera-target="3.5193m 44.1891m 2.1837m"
+        field-of-view="25.158deg">
+    </model-viewer>
+
+
+    <div class="top hud">
+
+        <div>
+            <div class="eyebrow">PRAKRITI-AI</div>
+
+            <h1>3D FIELD MODEL</h1>
+
+            <div class="status">
+                <span class="dot"></span>
+                <span id="status">LOADING MODEL</span>
+            </div>
+        </div>
+
+        <button id="fullscreen" class="icon-btn">⛶</button>
+
+    </div>
+
+
+    <div class="bottom hud">
+
+        <div class="hint">
+            <b>DRAG</b> Orbit
+        </div>
+
+        <div class="hint">
+            <b>SCROLL</b> Zoom
+        </div>
+
+        <div class="hint">
+            <b>TOUCH</b> Navigate
+        </div>
+
+        <button id="reset" class="reset-btn">
+            Reset View
+        </button>
+
+    </div>
+
+
+    <div id="error" class="error hidden">
+
+        <b>Model could not be loaded.</b>
+
+        <span>
+            Make sure <code>assets/fused.glb</code> exists.
+        </span>
+
+    </div>
+
+</div>
+
+<script src="viewer.js"></script>
+
+</body>
+</html>
