@@ -1,5 +1,9 @@
 # Prakriti-AI — Gesture-Controlled 3D Field Viewer
 
+<video width="100%" controls>
+  <source src="nothing.mp4" type="video/mp4">
+</video>
+
 A hand-gesture interface for the existing offline 3D field viewer
 (`offline_field_viewer/`, built on `<model-viewer>`), driven by a live
 webcam feed through OpenCV + MediaPipe, orchestrated by Streamlit.
