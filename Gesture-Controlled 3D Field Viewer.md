@@ -1,4 +1,4 @@
-# 🌾 Prakriti-AI — Gesture-Controlled 3D Field Viewer - [Demo](https://www.dropbox.com/scl/fi/7uytq1jd3kzlx2k5h84xm/nothing.mp4?rlkey=o28lj28pmre9jpt2rungxr6g7&st=bgyoxb6r&dl=0)
+# 🌾 Gesture-Controlled 3D Field Viewer - [Demo](https://www.dropbox.com/scl/fi/7uytq1jd3kzlx2k5h84xm/nothing.mp4?rlkey=o28lj28pmre9jpt2rungxr6g7&st=bgyoxb6r&dl=0)
 
 > **Explore a reconstructed agricultural field using natural hand gestures.**
 
