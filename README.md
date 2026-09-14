@@ -1,203 +1,146 @@
-# Prakriti-AI — Gesture-Controlled 3D Field Viewer - [Demo](https://www.dropbox.com/scl/fi/7uytq1jd3kzlx2k5h84xm/nothing.mp4?rlkey=o28lj28pmre9jpt2rungxr6g7&st=bgyoxb6r&dl=0)
+# 🌾 Prakriti-AI — Gesture-Controlled 3D Field Viewer - [Demo](https://www.dropbox.com/scl/fi/7uytq1jd3kzlx2k5h84xm/nothing.mp4?rlkey=o28lj28pmre9jpt2rungxr6g7&st=bgyoxb6r&dl=0)
 
-A hand-gesture interface for the existing offline 3D field viewer
-(`offline_field_viewer/`, built on `<model-viewer>`), driven by a live
-webcam feed through OpenCV + MediaPipe, orchestrated by Streamlit.
+> **Explore a reconstructed agricultural field using natural hand gestures.**
 
-```
- Webcam (browser)
-      │  streamlit-webrtc
-      ▼
- camera_stream.VideoProcessor        (OpenCV: mirror, draw debug overlay)
-      │
-      ▼
- gesture_detector.GestureDetector    (MediaPipe HandLandmarker → per-frame
-      │                               finger states / thumb-index distance)
-      ▼
- gesture_controller.GestureController (NONE/PINCH/POINT/ROTATE state machine:
-      │                                smoothing, hysteresis, debounce)
-      ▼
- shared_state.gesture_state           (thread-safe latest-command box)
-      │
-      ▼
- viewer_server.py  →  GET /gesture    (local Flask server, polled every 35ms)
-      │
-      ▼
- offline_field_viewer/viewer.js       (existing, unmodified rotation/zoom
-                                        math — only the point-gesture info
-                                        panel was added)
-```
+The **Gesture-Controlled 3D Field Viewer** allows users to explore a digital 3D reconstruction of an agricultural field without relying on a mouse or keyboard.
 
-The 3D viewer itself — model loading, camera setup, lighting, rotation and
-zoom math — is the **existing, unmodified** `offline_field_viewer` code.
-`viewer.js` already polled a `/gesture` endpoint before any of this project
-was added; `viewer_server.py` is simply the other half of that bridge.
-The only change made to the viewer is additive: a field-information panel
-that appears during the point gesture (see "Point gesture" below).
+A live camera observes the user's hand movements and converts simple gestures into actions inside the 3D field, creating a more natural and immersive way to investigate crop conditions.
 
-## Project layout
+---
 
-```
-gesture_farm_viewer/
-├── app.py                  Streamlit UI + orchestration
-├── camera_stream.py        streamlit-webrtc video processor (OpenCV)
-├── gesture_detector.py     MediaPipe HandLandmarker wrapper (stateless/frame)
-├── gesture_controller.py   NONE/PINCH/POINT/ROTATE state machine (stateful)
-├── shared_state.py         thread-safe bridge between the camera thread,
-│                           the Flask server, and the Streamlit UI thread
-├── viewer_server.py        local Flask server: serves offline_field_viewer/
-│                           and GET /gesture
-├── config.py               every tunable value, in one place
-├── download_model.py       one-time fetch of the MediaPipe hand model
-├── requirements.txt
-├── models/                 hand_landmarker.task goes here (see Setup)
-└── offline_field_viewer/   the existing 3D viewer (unmodified except the
-    ├── index.html          point-gesture info panel described below)
-    ├── style.css
-    ├── viewer.js
-    └── assets/
-        ├── model-viewer.min.js
-        └── fused.glb
-```
+## 🖐️ What It Does
 
-## Setup
+The viewer allows users to interact with the 3D field using three simple gestures:
 
-Two one-time steps need internet access. After that, the app runs
-completely offline.
+| Gesture       | Action                                                                    |
+| ------------- | ------------------------------------------------------------------------- |
+| ✌️ **Rotate** | Move two fingers to rotate and inspect the field from different angles    |
+| 🤏 **Pinch**  | Zoom in and out of the field                                              |
+| ☝️ **Point**  | Focus on a location and display information about the selected field area |
 
-```bash
-pip install -r requirements.txt      # 1. Python packages
-python download_model.py             # 2. MediaPipe hand-tracking model
-streamlit run app.py                 # 3. and from now on, offline
-```
+This makes it possible to move around the reconstructed field as though the user were physically inspecting it.
 
-**Why a separate model download?** Current MediaPipe releases load hand
-tracking from a `.task` model file rather than bundling it in the `pip`
-package (the older `mediapipe.solutions.hands` API that many tutorials use
-no longer ships at all — this project targets the current MediaPipe Tasks
-API). Google hosts the official file; `download_model.py` fetches it once
-into `models/hand_landmarker.task`. If your environment has no direct
-internet access, download it manually on another machine from:
+---
 
-```
-https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/latest/hand_landmarker.task
+## 🌍 Explore the Field Naturally
+
+The system presents a **3D digital representation of an agricultural field**, allowing users to examine:
+
+* Crop distribution
+* Field structure
+* Affected regions
+* Different viewing angles
+* Areas of interest within the reconstruction
+
+Instead of interacting with a conventional map, the user can **physically gesture toward the field and explore it spatially**.
+
+---
+
+## 🔄 Rotate the Field
+
+With the **two-finger rotate gesture**, users can orbit around the 3D reconstruction.
+
+This makes it possible to inspect the field from:
+
+* Different angles
+* Different heights
+* Different perspectives
+
+The goal is to make the field easier to understand as a **three-dimensional environment rather than a flat image**.
+
+---
+
+## 🤏 Zoom Into Areas of Interest
+
+The **pinch gesture** provides intuitive zoom control.
+
+Users can move closer to a particular region of the field to inspect it in greater detail and move back out to regain a broader view.
+
+This is especially useful when examining a specific crop cluster or affected area.
+
+---
+
+## ☝️ Point to Investigate
+
+The **point gesture** allows the user to focus attention on a particular location in the field.
+
+When a relevant area is selected, an information panel can provide contextual information such as:
+
+```text
+Field Area
+Rice Blast Risk Zone
+
+Status
+Affected
+
+Details
+Multiple nearby plants show signs
+of elevated disease risk.
 ```
 
-and copy it to `models/hand_landmarker.task`. (If that link ever moves,
-search "MediaPipe HandLandmarker model" for the current official URL.)
+This creates a direct connection between **what the user sees in the field** and **the information associated with that location**.
 
-The app still works without this file — the 3D viewer loads normally —
-gesture control just won't be available until the model is present.
+---
 
-## The three gestures
+## 🧭 From Drone Data to Interactive Field
 
-| Gesture | Hand shape | Effect |
-|---|---|---|
-| **Rotate** | Index + middle finger extended, others folded | Orbits the camera; hand movement maps to rotation |
-| **Pinch** | Thumb and index finger brought together | Zooms; spreading apart zooms in, pinching together zooms out (matches `viewer.js`'s existing convention) |
-| **Point** | Only the index finger extended | Shows the field-information panel (see below) |
+The viewer is designed around the concept of transforming field imagery into an interactive digital environment.
 
-Gestures are a formal state machine (`gesture_controller.py`), not one-shot
-triggers: an action only continues while its gesture is held, and stops the
-moment it's released. Priority when a hand shape is ambiguous: **Pinch >
-Point > Rotate > none**.
-
-## Point gesture — field information panel
-
-`config.POINT_INFORMATION` is intentionally left blank:
-
-```python
-POINT_INFORMATION = {
-    "title": "",
-    "description": "",
-    "status": "",
-    "details": "",
-}
+```text
+Drone / Field Images
+        ↓
+   3D Reconstruction
+        ↓
+ Digital Field Model
+        ↓
+ Gesture-Controlled Viewer
+        ↓
+ Interactive Field Inspection
 ```
 
-Fill in these four strings whenever your field data is ready — nothing
-else needs to change. `gesture_controller.py` attaches this dict to every
-frame where the point gesture is active; `viewer.js`'s `updateInfoPanel()`
-renders it. Until it's filled in, the panel shows a neutral "no information
-configured yet" placeholder rather than fake content.
+The result is a field that can be explored from different perspectives instead of being limited to a collection of photographs or a single overhead image.
 
-## Tuning
+---
 
-Every threshold lives in `config.GESTURE_CONFIG`. A few worth knowing:
+## 🌱 Why It Matters
 
-- **`pinch_start_threshold` / `pinch_release_threshold`** — thumb-index
-  distance (normalized by palm size) that engages/releases pinch. The gap
-  between them is deliberate hysteresis so the gesture doesn't flicker at
-  the boundary.
-- **`activation_frames` / `release_frames`** — how many consecutive frames
-  a hand shape must be held before a gesture starts/stops. Raise these if
-  gestures trigger too easily; lower them for a snappier feel.
-- **`max_missed_frames`** — how many consecutive "no hand" frames are
-  tolerated (a brief MediaPipe tracking blip just pauses the current
-  gesture) before it's forced back to `NONE`.
-- **`position_smoothing` / `distance_smoothing`** — exponential-moving-
-  average weights (0–1). Lower = smoother but laggier.
-- **`rotation_sensitivity` / `zoom_sensitivity`** — `offline_field_viewer/
-  viewer.js` already has its own tuned `ROTATE_SENSITIVITY` / `ZOOM_SENSITIVITY`
-  constants and its own camera-radius clamps; those are left untouched.
-  These Python-side multipliers scale the *reported hand movement* before
-  it reaches `viewer.js`, so the effective feel is `(viewer.js constant) ×
-  (this multiplier)`. `1.0` leaves the viewer's existing feel unchanged.
-- **`max_rotation_delta` / `max_zoom_delta`** — per-frame safety clamps so
-  a fast hand flick or a tracking glitch can't send a huge camera jump.
+Traditional crop monitoring often relies on photographs, maps, or manually inspecting individual locations.
 
-## Debug mode
+A 3D field representation provides another way to understand the environment:
 
-Check **Debug mode** in the sidebar to:
-- draw the hand skeleton and gesture/FPS/confidence text directly on the
-  video feed (so it's visible in real time, independent of Streamlit's
-  rerun cycle), and
-- expand a raw JSON panel of the full gesture state (finger states, raw
-  distances, state-machine internals).
+> **See the field. Rotate it. Zoom into it. Point at an area. Investigate it.**
 
-## Troubleshooting
+This can make complex field information more intuitive, especially when large areas need to be inspected.
 
-- **"Missing required viewer file(s)"** — `offline_field_viewer/assets/`
-  must contain `fused.glb` and `model-viewer.min.js`, next to `app.py`.
-- **Camera won't start / stays black** — allow camera permission in the
-  browser; if it still hangs, another app may be holding the webcam.
-- **`streamlit-webrtc` connection fails** — this project runs the WebRTC
-  peer connection with no STUN/TURN servers (`RTCConfiguration({"iceServers":
-  []})`), which is intentional for a fully offline, same-machine demo
-  (`streamlit run app.py` and the browser tab on the same computer). If you
-  later deploy this somewhere the browser and server aren't on the same
-  machine, you'll need to add ICE servers back in `app.py`.
-- **Port 8765 already in use** — change `VIEWER_SERVER_PORT` in `config.py`.
-- **Gestures feel too sensitive / not sensitive enough** — see Tuning above.
-- **"Hand landmark model not found"** on the video feed — run
-  `python download_model.py` (see Setup).
+---
 
-## A note on how this was built and verified
+## 🚜 What This Demonstrates
 
-This code was written and tested in a sandboxed environment with no
-display, no webcam, and no internet access — so the pieces were validated
-the ways that were actually possible there, rather than left unverified:
+The feature demonstrates how Prakriti-AI can combine **agricultural field reconstruction** with **natural human-computer interaction**.
 
-- `gesture_detector.py`'s geometry (`HandGeometry`) and
-  `gesture_controller.py`'s full state machine (hysteresis, debounce,
-  hand-loss grace period, pinch/rotate/point transitions) were exercised
-  with synthetic landmark data and passed.
-- `viewer_server.py` was actually run, and its static file serving and
-  `GET /gesture` endpoint were hit with real HTTP requests (including a
-  range request against the 100MB `.glb`, which returned `206 Partial
-  Content` correctly).
-- `camera_stream.VideoProcessor.recv()` was run end-to-end (with a stub
-  in place of the real webcam frame source) through detection → state
-  machine → shared state → debug overlay drawing, with no errors.
-- The MediaPipe API calls target the **Tasks API**
-  (`mediapipe.tasks.python.vision.HandLandmarker`), confirmed against a
-  real MediaPipe 0.10.33 install — the older `mediapipe.solutions.hands`
-  API used in most tutorials is no longer importable in current releases.
+It brings together:
 
-What **wasn't** possible to verify directly: an actual webcam feed through
-a real browser, `streamlit-webrtc`'s live connection, and Streamlit's own
-rendering. Those pieces follow their documented, standard usage patterns,
-but give the first run a bit of extra attention — in particular, if your
-installed `streamlit-webrtc` version is very new or very old, its
-`video_processor_factory` callback API has stayed stable for a long time,
-but check its changelog if `app.py` fails to start.
+* 🌾 **Digital field reconstruction**
+* 🗺️ **Spatial crop visualization**
+* 🖐️ **Natural gesture interaction**
+* 🔍 **Interactive field inspection**
+* 📍 **Location-based information**
+* 🌱 **Agricultural disease and risk visualization**
+
+Rather than simply displaying agricultural data, the system turns the data into an **interactive field that users can explore naturally**.
+
+---
+
+## ✨ The Bigger Idea
+
+### **Capture the field.**
+
+### **Reconstruct the environment.**
+
+### **Explore it naturally.**
+
+### **Understand what is happening within it.**
+
+The Gesture-Controlled 3D Field Viewer represents Prakriti-AI's vision of turning agricultural monitoring into a more **interactive, visual, and intuitive experience**.
+
+> **A field you don't just look at — you explore.**
